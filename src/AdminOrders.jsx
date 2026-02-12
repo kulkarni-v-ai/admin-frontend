@@ -8,9 +8,12 @@ function AdminOrders() {
   const [products, setProducts] = useState([]);
 const [name, setName] = useState("");
 const [price, setPrice] = useState("");
-const [image, setImage] = useState("");
+const [image, setImage] = useState(null);
 const [description, setDescription] = useState("");
 const [stock, setStock] = useState("");
+const [editingId, setEditingId] = useState(null);
+const [editData, setEditData] = useState({});
+
 
 useEffect(() => {
   fetch("https://shop-backend-yvk4.onrender.com/api/orders")
@@ -47,6 +50,12 @@ const updateStatus = async (id, status) => {
     }
   };
 
+const startEdit = (product) => {
+  setEditingId(product._id);
+  setEditData(product);
+};
+
+
   const deleteProduct = async (id) => {
   try {
     await fetch(`https://shop-backend-yvk4.onrender.com/api/products/${id}`, {
@@ -63,23 +72,43 @@ const updateStatus = async (id, status) => {
   }
 };
 
-const createProduct = async () => {
+const saveEdit = async () => {
   try {
-    await fetch("https://shop-backend-yvk4.onrender.com/api/products", {
-      method: "POST",
+    await fetch(`https://shop-backend-yvk4.onrender.com/api/products/${editingId}`, {
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        name,
-        price,
-        image,
-        description,
-        stock,
-      }),
+      body: JSON.stringify(editData),
     });
 
-    // Refresh list
+    const res = await fetch("https://shop-backend-yvk4.onrender.com/api/products");
+    const data = await res.json();
+    setProducts(data);
+
+    setEditingId(null);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+
+const createProduct = async () => {
+  try {
+    const formData = new FormData();
+
+    formData.append("name", name);
+    formData.append("price", price);
+    formData.append("description", description);
+    formData.append("stock", stock);
+    formData.append("image", image);   // ← actual file
+
+    await fetch("https://shop-backend-yvk4.onrender.com/api/products", {
+      method: "POST",
+      body: formData,   // ⚠️ no headers here
+    });
+
+    // Refresh product list
     const res = await fetch("https://shop-backend-yvk4.onrender.com/api/products");
     const data = await res.json();
     setProducts(data);
@@ -87,7 +116,7 @@ const createProduct = async () => {
     // Clear form
     setName("");
     setPrice("");
-    setImage("");
+    setImage(null);
     setDescription("");
     setStock("");
 
@@ -95,6 +124,7 @@ const createProduct = async () => {
     console.log(err);
   }
 };
+
 
 
 
@@ -115,11 +145,11 @@ return (
   onChange={(e) => setPrice(e.target.value)}
 />
 
-<input
-  placeholder="Image URL"
-  value={image}
-  onChange={(e) => setImage(e.target.value)}
-/>
+<input 
+type="file"
+ onChange={(e) => setImage(e.target.files[0])}
+ />
+
 
 <input
   placeholder="Description"
@@ -140,42 +170,55 @@ return (
     <h2>Products</h2>
 
 {products.map(p => (
-  <div
-    key={p._id}
-    style={{
-      border: "1px solid #ccc",
-      padding: 10,
-      marginBottom: 10,
-      position: "relative"
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.querySelector(".delete-btn").style.opacity = 1;
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.querySelector(".delete-btn").style.opacity = 0;
-    }}
-  >
+  <div key={p._id} style={{
+  border: "1px solid #ccc",
+  padding: 10,
+  marginBottom: 10,
+  position: "relative"
+}}>
+
+{editingId === p._id ? (
+  <>
+    <input
+      value={editData.name}
+      onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+    />
+
+    <input
+      value={editData.price}
+      onChange={(e) => setEditData({ ...editData, price: e.target.value })}
+    />
+
+    <button onClick={saveEdit}>Save</button>
+  </>
+) : (
+  <>
     <b>{p.name}</b> — ₹{p.price}
 
     <button
-      className="delete-btn"
+      onClick={() => startEdit(p)}
+      style={{ marginLeft: 10 }}
+    >
+      Edit
+    </button>
+
+    <button
       onClick={() => deleteProduct(p._id)}
       style={{
-        position: "absolute",
-        right: 10,
-        top: 10,
+        marginLeft: 10,
         background: "red",
         color: "white",
         border: "none",
         padding: "5px 10px",
-        cursor: "pointer",
-        opacity: 0,
-        transition: "0.2s"
+        cursor: "pointer"
       }}
     >
       Delete
     </button>
-  </div>
+  </>
+)}
+</div>
+
 ))}
 
        
