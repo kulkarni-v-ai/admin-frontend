@@ -13,6 +13,8 @@ const [description, setDescription] = useState("");
 const [stock, setStock] = useState("");
 const [editingId, setEditingId] = useState(null);
 const [editData, setEditData] = useState({});
+const [category, setCategory] = useState("");
+
 
 
 useEffect(() => {
@@ -102,6 +104,8 @@ const createProduct = async () => {
     formData.append("description", description);
     formData.append("stock", stock);
     formData.append("image", image);   // ← actual file
+    formData.append("category", category);
+
 
     await fetch("https://shop-backend-yvk4.onrender.com/api/products", {
       method: "POST",
@@ -162,6 +166,13 @@ type="file"
   value={stock}
   onChange={(e) => setStock(e.target.value)}
 />
+
+<input
+  placeholder="Category"
+  value={category}
+  onChange={(e) => setCategory(e.target.value)}
+/>
+
 
 <button onClick={createProduct}>
   Add Product
