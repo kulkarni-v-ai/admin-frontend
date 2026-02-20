@@ -21,13 +21,8 @@ function Dashboard() {
       >
         <h2 style={{ color: "white" }}>Admin</h2>
 
-        <Link to="products" style={{ display: "block", margin: 10 }}>
-          Products
-        </Link>
-
-        <Link to="orders" style={{ display: "block", margin: 10 }}>
-          Orders
-        </Link>
+       <Link to="/dashboard/products">Products</Link>
+<Link to="/dashboard/orders">Orders</Link>
 
         <button onClick={logout}>Logout</button>
       </div>
