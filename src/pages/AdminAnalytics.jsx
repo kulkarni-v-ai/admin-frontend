@@ -9,6 +9,9 @@ import {
     Tooltip as RechartsTooltip,
     ResponsiveContainer,
 } from "recharts";
+import { motion } from "framer-motion";
+import { FiDollarSign, FiShoppingBag, FiTrendingUp, FiEye } from "react-icons/fi";
+import StatCard from "../components/StatCard";
 
 function AdminAnalytics() {
     const [stats, setStats] = useState(null);
@@ -41,23 +44,40 @@ function AdminAnalytics() {
                 <p>Overview of store performance and shopping behaviors</p>
             </div>
 
-            <div className="dashboard-grid">
-                <div className="stat-card">
-                    <h3>Total Revenue</h3>
-                    <p className="stat-value">₹{stats.overview.totalRevenue.toLocaleString()}</p>
-                </div>
-                <div className="stat-card">
-                    <h3>Total Orders</h3>
-                    <p className="stat-value">{stats.overview.totalOrders}</p>
-                </div>
-                <div className="stat-card">
-                    <h3>Conversion Rate</h3>
-                    <p className="stat-value">{stats.overview.conversionRate}</p>
-                </div>
-                <div className="stat-card">
-                    <h3>Total Views</h3>
-                    <p className="stat-value">{stats.overview.viewsCount.toLocaleString()}</p>
-                </div>
+            <div className="dashboard-grid" style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                gap: "24px",
+                marginTop: "32px"
+            }}>
+                <StatCard
+                    title="Total Revenue"
+                    value={`₹${stats.overview.totalRevenue.toLocaleString()}`}
+                    icon={<FiDollarSign />}
+                    color="#10b981"
+                    delay={0.1}
+                />
+                <StatCard
+                    title="Total Orders"
+                    value={stats.overview.totalOrders}
+                    icon={<FiShoppingBag />}
+                    color="#4f46e5"
+                    delay={0.2}
+                />
+                <StatCard
+                    title="Conversion Rate"
+                    value={stats.overview.conversionRate}
+                    icon={<FiTrendingUp />}
+                    color="#f59e0b"
+                    delay={0.3}
+                />
+                <StatCard
+                    title="Total Views"
+                    value={stats.overview.viewsCount.toLocaleString()}
+                    icon={<FiEye />}
+                    color="#6366f1"
+                    delay={0.4}
+                />
             </div>
 
             <div className="charts-container" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2rem", marginTop: "2rem" }}>

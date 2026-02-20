@@ -61,11 +61,14 @@ export const AuthProvider = ({ children }) => {
     };
 
     const hasRole = (allowedRoles) => {
-        if (!user || (!user.role && allowedRoles.length > 0)) return false;
-        // For backward compatibility while migrating, if user has no role but token exists, 
-        // we default to assuming they are an admin if no specific roles were provided.
-        if (!user.role) return true;
-        return allowedRoles.includes(user.role);
+        if (!user) return false;
+
+        // If roles is empty, allow all authenticated users
+        if (!allowedRoles || allowedRoles.length === 0) return true;
+
+        // Ensure role exists, if not try to get from token or fallback
+        const userRole = user.role || "manager";
+        return allowedRoles.includes(userRole);
     };
 
     return (

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
+import Logo from "./Logo";
 import {
     FiLayout,
     FiBox,
@@ -80,19 +81,20 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                 height: "var(--navbar-height)",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: isCollapsed ? "center" : "space-between",
-                padding: "0 20px",
+                justifyContent: "space-between",
+                padding: "0 16px",
                 borderBottom: "1px solid rgba(255,255,255,0.05)"
             }}>
                 <AnimatePresence mode="wait">
                     {!isCollapsed && (
                         <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            style={{ fontWeight: "bold", fontSize: "1.25rem", color: "var(--primary)", whiteSpace: "nowrap" }}
+                            key="logo"
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -10 }}
+                            style={{ overflow: "hidden" }}
                         >
-                            HOV <span style={{ color: "white" }}>ADMIN</span>
+                            <Logo />
                         </motion.div>
                     )}
                 </AnimatePresence>
