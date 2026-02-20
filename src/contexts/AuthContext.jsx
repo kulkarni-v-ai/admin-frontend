@@ -57,7 +57,6 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem("admin");
         setToken(null);
         setUser(null);
-        window.location.href = "/";
     };
 
     const hasRole = (allowedRoles) => {
