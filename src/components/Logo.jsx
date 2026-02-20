@@ -39,7 +39,7 @@ const Logo = () => {
                 fontWeight: "800",
                 letterSpacing: "-0.5px"
             }}>
-                HOV <span style={{ fontWeight: "400", opacity: 0.8 }}>Admin</span>
+                Vanyx <span style={{ fontWeight: "400", opacity: 0.8 }}>Admin</span>
             </h2>
         </motion.div>
     );

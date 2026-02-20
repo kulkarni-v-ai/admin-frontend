@@ -95,7 +95,7 @@ function Login() {
             transition={{ delay: 0.3 }}
             style={{ color: "var(--text-sidebar)", fontSize: "14px", fontWeight: 500 }}
           >
-            Enter your credentials to manage HOV Shop
+            Enter your credentials to manage Admin Portal
           </motion.p>
         </div>
 

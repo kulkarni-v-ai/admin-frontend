@@ -201,7 +201,7 @@ const SystemMonitoring = () => {
                             { event: "Login Attempt", from: "IP: 182.xx", status: "Blocked", time: "2m ago" },
                             { event: "Cert Renewal", from: "Auto-renew", status: "Success", time: "1h ago" },
                             { event: "SSH Access", from: "Root User", status: "Verified", time: "3h ago" },
-                            { event: "API Surge", from: "NodeJS/Hov", status: "Throttled", time: "5h ago" },
+                            { event: "API Surge", from: "NodeJS/Backend", status: "Throttled", time: "5h ago" },
                         ].map((log, i) => (
                             <div key={i} style={{ borderLeft: "2px solid #334155", paddingLeft: "16px" }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.875rem", marginBottom: "4px" }}>
