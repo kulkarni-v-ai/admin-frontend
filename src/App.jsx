@@ -1,3 +1,4 @@
+import AdminProducts from "./AdminProducts";
 import AdminOrders from "./AdminOrders";
 
 import { useState } from "react";
@@ -44,12 +45,14 @@ function App() {
  if (isAdmin) {
   return (
     <div style={{ padding: 40 }}>
-      <h1> Admin Dashboard</h1>
+      <h1>Admin Dashboard</h1>
 
       <button onClick={logout} style={{ marginBottom: 20 }}>
         Logout
       </button>
 
+      <AdminProducts />
+      <hr style={{ margin: "40px 0" }} />
       <AdminOrders />
     </div>
   );
