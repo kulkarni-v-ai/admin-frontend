@@ -78,28 +78,28 @@ function AdminAnalytics() {
             }}>
                 <StatCard
                     title="Total Revenue"
-                    value={`₹${stats.overview.totalRevenue.toLocaleString()}`}
+                    value={`₹${(stats.overview?.totalRevenue || 0).toLocaleString()}`}
                     icon={<FiDollarSign />}
                     color="#10b981"
                     delay={0.1}
                 />
                 <StatCard
                     title="Total Orders"
-                    value={stats.overview.totalOrders}
+                    value={stats.overview?.totalOrders || 0}
                     icon={<FiShoppingBag />}
                     color="#4f46e5"
                     delay={0.2}
                 />
                 <StatCard
                     title="Conversion Rate"
-                    value={`${stats.overview.conversionRate}%`}
+                    value={`${stats.overview?.conversionRate || 0}%`}
                     icon={<FiTrendingUp />}
                     color="#f59e0b"
                     delay={0.3}
                 />
                 <StatCard
                     title="Total Views"
-                    value={stats.overview.viewsCount.toLocaleString()}
+                    value={(stats.overview?.viewsCount || 0).toLocaleString()}
                     icon={<FiEye />}
                     color="#6366f1"
                     delay={0.4}
@@ -122,7 +122,7 @@ function AdminAnalytics() {
                     <h3 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "24px" }}>Top 5 Purchased Products</h3>
                     <div style={{ height: 350 }}>
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={stats.topPurchased} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
+                            <BarChart data={stats.topPurchased || []} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
                                 <defs>
                                     <linearGradient id="colorPurchased" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.8} />
@@ -161,7 +161,7 @@ function AdminAnalytics() {
                     <h3 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "24px" }}>Top 5 Browsed Products</h3>
                     <div style={{ height: 350 }}>
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={stats.topBrowsed} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
+                            <BarChart data={stats.topBrowsed || []} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
                                 <defs>
                                     <linearGradient id="colorBrowsed" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
@@ -194,7 +194,7 @@ function AdminAnalytics() {
             <div className="admin-lists-container" style={{ marginTop: "2rem" }}>
                 <div className="card">
                     <h3>Low Stock Alerts</h3>
-                    {stats.lowStock.length > 0 ? (
+                    {(stats.lowStock || []).length > 0 ? (
                         <table className="admin-table">
                             <thead>
                                 <tr>
