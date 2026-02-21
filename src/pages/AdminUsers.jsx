@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import api from "../utils/api";
-import { FiPlus, FiTrash2, FiX, FiShield } from "react-icons/fi";
+import { FiPlus, FiTrash2, FiX, FiShield, FiEdit2 } from "react-icons/fi";
+import { AuthContext } from "../contexts/AuthContext";
 
 function AdminUsers() {
     const [users, setUsers] = useState([]);
@@ -15,6 +16,10 @@ function AdminUsers() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [role, setRole] = useState("manager"); // default role
+    const { user: currentUser } = useContext(AuthContext);
+
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [editingUserId, setEditingUserId] = useState(null);
 
     const [view, setView] = useState("team"); // "team" or "customers"
 
@@ -42,8 +47,8 @@ function AdminUsers() {
                     } else throw err;
                 }
             } else {
-                // Fetch Customers from the new endpoint
-                const res = await api.get("/auth/users");
+                // Fetch Customers from the new consolidated endpoint
+                const res = await api.get("/admin/customers");
                 const normalized = res.data.map(u => ({ ...u, _id: u._id || u.id, username: u.name || u.email }));
                 setUsers(normalized);
             }
@@ -55,15 +60,27 @@ function AdminUsers() {
         }
     };
 
-    const openModal = () => {
-        setUsername("");
-        setPassword("");
-        setRole("manager");
+    const openModal = (userToEdit = null) => {
+        if (userToEdit) {
+            setIsEditMode(true);
+            setEditingUserId(userToEdit._id);
+            setUsername(userToEdit.username);
+            setRole(userToEdit.role || "manager");
+            setPassword(""); // Keep password blank unless changing
+        } else {
+            setIsEditMode(false);
+            setEditingUserId(null);
+            setUsername("");
+            setPassword("");
+            setRole("manager");
+        }
         setIsModalOpen(true);
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
+        setIsEditMode(false);
+        setEditingUserId(null);
     };
 
     const handleSubmit = async (e) => {
@@ -72,25 +89,41 @@ function AdminUsers() {
         setError("");
 
         try {
-            const res = await api.post("/admin/register", { username, password, role });
+            if (isEditMode) {
+                // Update existing user or self profile
+                const isSelf = editingUserId === currentUser.id || editingUserId === currentUser._id;
+                const endpoint = isSelf ? "/admin/profile" : `/admin/users/${editingUserId}`;
 
-            if (view === "team") {
-                const newUser = res.data.admin || res.data;
-                const normalized = { ...newUser, _id: newUser._id || newUser.id };
-                setUsers([...users, normalized]);
+                const res = await api.put(endpoint, {
+                    username,
+                    role,
+                    ...(password && { password })
+                });
+
+                // Update UI list
+                setUsers(users.map(u => u._id === editingUserId ? { ...u, username, role } : u));
+            } else {
+                // Create new user
+                const res = await api.post("/admin/register", { username, password, role });
+
+                if (view === "team") {
+                    const newUser = res.data.admin || res.data;
+                    const normalized = { ...newUser, _id: newUser._id || newUser.id };
+                    setUsers([...users, normalized]);
+                }
             }
 
             closeModal();
         } catch (err) {
             console.error(err);
-            setError(err.response?.data?.message || "Failed to create user.");
+            setError(err.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'create'} user.`);
         } finally {
             setIsSubmitting(false);
         }
     };
 
     const deleteUser = async (id, userRole) => {
-        if (userRole === "superadmin") {
+        if (userRole === "superadmin" && id !== currentUser?.id && id !== currentUser?._id) {
             alert("Cannot delete another superadmin.");
             return;
         }
@@ -98,7 +131,7 @@ function AdminUsers() {
         if (!window.confirm(`Are you sure you want to delete this ${view === 'team' ? 'team member' : 'customer'}?`)) return;
 
         try {
-            const endpoint = view === "team" ? `/admin/users/${id}` : `/auth/users/${id}`;
+            const endpoint = view === "team" ? `/admin/users/${id}` : `/admin/customers/${id}`;
             await api.delete(endpoint);
             setUsers(users.filter(u => u._id !== id));
         } catch (err) {
@@ -185,16 +218,28 @@ function AdminUsers() {
                                         {u.role || "Manager"}
                                     </span>
                                 </td>
-                                <td style={{ padding: "16px 20px", textAlign: "right" }}>
+                                <td style={{ padding: "16px 20px", textAlign: "right", display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+                                    {view === "team" && (
+                                        <button
+                                            onClick={() => openModal(u)}
+                                            style={{
+                                                padding: "8px", backgroundColor: "#eff6ff",
+                                                color: "#2563eb", border: "none", borderRadius: "4px", cursor: "pointer"
+                                            }}
+                                            title="Edit user details"
+                                        >
+                                            <FiEdit2 size={16} />
+                                        </button>
+                                    )}
                                     <button
                                         onClick={() => deleteUser(u._id, u.role)}
-                                        disabled={u.role === "superadmin"}
+                                        disabled={u.role === "superadmin" && u._id !== (currentUser?.id || currentUser?._id)}
                                         style={{
-                                            padding: "8px", backgroundColor: u.role === "superadmin" ? "#f3f4f6" : "#fee2e2",
-                                            color: u.role === "superadmin" ? "#9ca3af" : "#dc2626",
-                                            border: "none", borderRadius: "4px", cursor: u.role === "superadmin" ? "not-allowed" : "pointer"
+                                            padding: "8px", backgroundColor: (u.role === "superadmin" && u._id !== (currentUser?.id || currentUser?._id)) ? "#f3f4f6" : "#fee2e2",
+                                            color: (u.role === "superadmin" && u._id !== (currentUser?.id || currentUser?._id)) ? "#9ca3af" : "#dc2626",
+                                            border: "none", borderRadius: "4px", cursor: (u.role === "superadmin" && u._id !== (currentUser?.id || currentUser?._id)) ? "not-allowed" : "pointer"
                                         }}
-                                        title={u.role === "superadmin" ? "Cannot delete superadmin" : "Delete user"}
+                                        title={u.role === "superadmin" && u._id !== (currentUser?.id || currentUser?._id) ? "Cannot delete other superadmin" : "Delete user"}
                                     >
                                         <FiTrash2 size={16} />
                                     </button>
@@ -218,7 +263,7 @@ function AdminUsers() {
                         boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
                     }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-                            <h2 style={{ margin: 0 }}>Create New User</h2>
+                            <h2 style={{ margin: 0 }}>{isEditMode ? "Edit User Details" : "Create New User"}</h2>
                             <button onClick={closeModal} style={{ background: "transparent", border: "none", cursor: "pointer", color: "#6b7280" }}>
                                 <FiX size={24} />
                             </button>
@@ -231,24 +276,26 @@ function AdminUsers() {
                             </div>
 
                             <div>
-                                <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Password</label>
-                                <input required type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box" }} />
+                                <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Password {isEditMode && "(Leave blank to keep current)"}</label>
+                                <input required={!isEditMode} type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={isEditMode ? "••••••••" : ""} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box" }} />
                             </div>
 
                             <div>
                                 <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Assigned Role</label>
-                                <select value={role} onChange={(e) => setRole(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box", backgroundColor: "white" }}>
+                                <select value={role} disabled={isEditMode && editingUserId === (currentUser?.id || currentUser?._id)} onChange={(e) => setRole(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box", backgroundColor: (isEditMode && editingUserId === (currentUser?.id || currentUser?._id)) ? "#f3f4f6" : "white" }}>
                                     <option value="manager">Manager (View/Update Orders)</option>
                                     <option value="admin">Admin (Manage Products & Orders)</option>
                                     <option value="superadmin">Superadmin (Full System Control)</option>
                                 </select>
-                                <p style={{ fontSize: "12px", color: "#6b7280", margin: "8px 0 0 0" }}>Superadmins have the highest level of system access.</p>
+                                {isEditMode && editingUserId === (currentUser?.id || currentUser?._id) && (
+                                    <p style={{ fontSize: "12px", color: "#6b7280", margin: "4px 0 0 0" }}>You cannot change your own role to prevent accidental lockout.</p>
+                                )}
                             </div>
 
                             <div style={{ display: "flex", gap: "10px", marginTop: "10px", justifyContent: "flex-end" }}>
                                 <button type="button" onClick={closeModal} style={{ padding: "10px 16px", backgroundColor: "white", border: "1px solid #d1d5db", borderRadius: "6px", cursor: "pointer", color: "#374151", fontWeight: "500" }}>Cancel</button>
                                 <button type="submit" disabled={isSubmitting} style={{ padding: "10px 16px", backgroundColor: "#3b82f6", border: "none", borderRadius: "6px", cursor: isSubmitting ? "not-allowed" : "pointer", color: "white", fontWeight: "500", opacity: isSubmitting ? 0.7 : 1 }}>
-                                    {isSubmitting ? "Creating..." : "Create User"}
+                                    {isSubmitting ? (isEditMode ? "Updating..." : "Creating...") : (isEditMode ? "Update Details" : "Create User")}
                                 </button>
                             </div>
                         </form>
