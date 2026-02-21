@@ -23,6 +23,39 @@ function AdminUsers() {
 
     const [view, setView] = useState("team"); // "team" or "customers"
 
+    // Customer Edit State
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [address, setAddress] = useState({ street: "", city: "", state: "", zip: "" });
+    const [fetchingPincode, setFetchingPincode] = useState(false);
+
+    useEffect(() => {
+        const fetchLocation = async () => {
+            if (view === "customers" && isEditMode && address.zip && address.zip.length === 6) {
+                try {
+                    setFetchingPincode(true);
+                    const res = await fetch(`https://api.postalpincode.in/pincode/${address.zip}`);
+                    const data = await res.json();
+
+                    if (data[0].Status === "Success") {
+                        const postOffice = data[0].PostOffice[0];
+                        setAddress(prev => ({
+                            ...prev,
+                            city: postOffice.District,
+                            state: postOffice.State
+                        }));
+                    }
+                } catch (err) {
+                    console.error("Pincode lookup failed", err);
+                } finally {
+                    setFetchingPincode(false);
+                }
+            }
+        };
+
+        fetchLocation();
+    }, [address.zip, view, isEditMode]);
+
     useEffect(() => {
         fetchData();
     }, [view]);
@@ -54,7 +87,9 @@ function AdminUsers() {
             }
         } catch (err) {
             console.error(err);
-            setError(`Failed to load ${view}. Please try again.`);
+            const status = err.response?.status;
+            const message = err.response?.data?.message || err.message;
+            setError(`Failed to load ${view} (${status || 'Network Error'}): ${message}`);
         } finally {
             setLoading(false);
         }
@@ -64,15 +99,30 @@ function AdminUsers() {
         if (userToEdit) {
             setIsEditMode(true);
             setEditingUserId(userToEdit._id);
-            setUsername(userToEdit.username);
-            setRole(userToEdit.role || "manager");
-            setPassword(""); // Keep password blank unless changing
+
+            if (view === "team") {
+                setUsername(userToEdit.username || "");
+                setRole(userToEdit.role || "manager");
+                setPassword("");
+            } else {
+                setName(userToEdit.name || "");
+                setEmail(userToEdit.email || "");
+                setAddress({
+                    street: userToEdit.address?.street || "",
+                    city: userToEdit.address?.city || "",
+                    state: userToEdit.address?.state || "",
+                    zip: userToEdit.address?.zip || ""
+                });
+            }
         } else {
             setIsEditMode(false);
             setEditingUserId(null);
             setUsername("");
             setPassword("");
             setRole("manager");
+            setName("");
+            setEmail("");
+            setAddress({ street: "", city: "", state: "", zip: "" });
         }
         setIsModalOpen(true);
     };
@@ -90,29 +140,24 @@ function AdminUsers() {
 
         try {
             if (isEditMode) {
-                // Update existing user or self profile
-                const isSelf = editingUserId === currentUser.id || editingUserId === currentUser._id;
-                const endpoint = isSelf ? "/admin/profile" : `/admin/users/${editingUserId}`;
-
-                const res = await api.put(endpoint, {
-                    username,
-                    role,
-                    ...(password && { password })
-                });
-
-                // Update UI list
-                setUsers(users.map(u => u._id === editingUserId ? { ...u, username, role } : u));
+                if (view === "team") {
+                    const isSelf = editingUserId === currentUser.id || editingUserId === currentUser._id;
+                    const endpoint = isSelf ? "/admin/profile" : `/admin/users/${editingUserId}`;
+                    await api.put(endpoint, { username, role, ...(password && { password }) });
+                    setUsers(users.map(u => u._id === editingUserId ? { ...u, username, role } : u));
+                } else {
+                    const endpoint = `/admin/customers/${editingUserId}`;
+                    const res = await api.put(endpoint, { name, email, address });
+                    setUsers(users.map(u => u._id === editingUserId ? { ...u, name, email, address, username: name || email } : u));
+                }
             } else {
-                // Create new user
                 const res = await api.post("/admin/register", { username, password, role });
-
                 if (view === "team") {
                     const newUser = res.data.admin || res.data;
                     const normalized = { ...newUser, _id: newUser._id || newUser.id };
                     setUsers([...users, normalized]);
                 }
             }
-
             closeModal();
         } catch (err) {
             console.error(err);
@@ -219,18 +264,16 @@ function AdminUsers() {
                                     </span>
                                 </td>
                                 <td style={{ padding: "16px 20px", textAlign: "right", display: "flex", justifyContent: "flex-end", gap: "8px" }}>
-                                    {view === "team" && (
-                                        <button
-                                            onClick={() => openModal(u)}
-                                            style={{
-                                                padding: "8px", backgroundColor: "#eff6ff",
-                                                color: "#2563eb", border: "none", borderRadius: "4px", cursor: "pointer"
-                                            }}
-                                            title="Edit user details"
-                                        >
-                                            <FiEdit2 size={16} />
-                                        </button>
-                                    )}
+                                    <button
+                                        onClick={() => openModal(u)}
+                                        style={{
+                                            padding: "8px", backgroundColor: "#eff6ff",
+                                            color: "#2563eb", border: "none", borderRadius: "4px", cursor: "pointer"
+                                        }}
+                                        title={`Edit ${view === 'team' ? 'team member' : 'customer'} details`}
+                                    >
+                                        <FiEdit2 size={16} />
+                                    </button>
                                     <button
                                         onClick={() => deleteUser(u._id, u.role)}
                                         disabled={u.role === "superadmin" && u._id !== (currentUser?.id || currentUser?._id)}
@@ -270,27 +313,54 @@ function AdminUsers() {
                         </div>
 
                         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-                            <div>
-                                <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Username</label>
-                                <input required type="text" value={username} onChange={(e) => setUsername(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box" }} />
-                            </div>
+                            {view === "team" ? (
+                                <>
+                                    <div>
+                                        <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Username</label>
+                                        <input required type="text" value={username} onChange={(e) => setUsername(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box" }} />
+                                    </div>
 
-                            <div>
-                                <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Password {isEditMode && "(Leave blank to keep current)"}</label>
-                                <input required={!isEditMode} type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={isEditMode ? "••••••••" : ""} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box" }} />
-                            </div>
+                                    <div>
+                                        <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Password {isEditMode && "(Leave blank to keep current)"}</label>
+                                        <input required={!isEditMode} type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={isEditMode ? "••••••••" : ""} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box" }} />
+                                    </div>
 
-                            <div>
-                                <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Assigned Role</label>
-                                <select value={role} disabled={isEditMode && editingUserId === (currentUser?.id || currentUser?._id)} onChange={(e) => setRole(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box", backgroundColor: (isEditMode && editingUserId === (currentUser?.id || currentUser?._id)) ? "#f3f4f6" : "white" }}>
-                                    <option value="manager">Manager (View/Update Orders)</option>
-                                    <option value="admin">Admin (Manage Products & Orders)</option>
-                                    <option value="superadmin">Superadmin (Full System Control)</option>
-                                </select>
-                                {isEditMode && editingUserId === (currentUser?.id || currentUser?._id) && (
-                                    <p style={{ fontSize: "12px", color: "#6b7280", margin: "4px 0 0 0" }}>You cannot change your own role to prevent accidental lockout.</p>
-                                )}
-                            </div>
+                                    <div>
+                                        <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Assigned Role</label>
+                                        <select value={role} disabled={isEditMode && editingUserId === (currentUser?.id || currentUser?._id)} onChange={(e) => setRole(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box", backgroundColor: (isEditMode && editingUserId === (currentUser?.id || currentUser?._id)) ? "#f3f4f6" : "white" }}>
+                                            <option value="manager">Manager (View/Update Orders)</option>
+                                            <option value="admin">Admin (Manage Products & Orders)</option>
+                                            <option value="superadmin">Superadmin (Full System Control)</option>
+                                        </select>
+                                        {isEditMode && editingUserId === (currentUser?.id || currentUser?._id) && (
+                                            <p style={{ fontSize: "12px", color: "#6b7280", margin: "4px 0 0 0" }}>You cannot change your own role to prevent accidental lockout.</p>
+                                        )}
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div>
+                                        <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Full Name</label>
+                                        <input required type="text" value={name} onChange={(e) => setName(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box" }} />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Email Address</label>
+                                        <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box" }} />
+                                    </div>
+                                    <div style={{ borderTop: "1px solid #e5e7eb", paddingTop: "10px" }}>
+                                        <label style={{ display: "block", marginBottom: "5px", fontSize: "12px", fontWeight: "bold", color: "#6b7280" }}>SHIPPING ADDRESS</label>
+                                        <input placeholder="Street" type="text" value={address.street} onChange={(e) => setAddress({ ...address, street: e.target.value })} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box", marginBottom: "8px" }} />
+                                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+                                            <input placeholder="City" type="text" value={address.city} onChange={(e) => setAddress({ ...address, city: e.target.value })} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box" }} />
+                                            <input placeholder="State" type="text" value={address.state} onChange={(e) => setAddress({ ...address, state: e.target.value })} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box" }} />
+                                        </div>
+                                        <div style={{ position: "relative" }}>
+                                            <input placeholder="Zip Code" type="text" value={address.zip} onChange={(e) => setAddress({ ...address, zip: e.target.value.replace(/\D/g, '').slice(0, 6) })} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box", marginTop: "8px" }} />
+                                            {fetchingPincode && <span style={{ position: "absolute", right: "10px", top: "18px", fontSize: "10px", color: "#3b82f6" }}>Looking up...</span>}
+                                        </div>
+                                    </div>
+                                </>
+                            )}
 
                             <div style={{ display: "flex", gap: "10px", marginTop: "10px", justifyContent: "flex-end" }}>
                                 <button type="button" onClick={closeModal} style={{ padding: "10px 16px", backgroundColor: "white", border: "1px solid #d1d5db", borderRadius: "6px", cursor: "pointer", color: "#374151", fontWeight: "500" }}>Cancel</button>

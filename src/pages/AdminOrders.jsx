@@ -93,7 +93,27 @@ function AdminOrders() {
                 </div>
 
                 <div style={{ backgroundColor: "#f9fafb", padding: "12px", borderRadius: "6px", marginBottom: "15px" }}>
-                  <p style={{ margin: "0 0 8px 0", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Items:</p>
+                  <p style={{ margin: "0 0 8px 0", fontSize: "14px", fontWeight: "600", color: "#374151" }}>Buyer Info:</p>
+                  <p style={{ margin: "0 0 4px 0", fontSize: "13px", color: "#4b5563" }}>
+                    Name: <span style={{ color: "#111827", fontWeight: "500" }}>{order.user?.name || "Guest"}</span>
+                  </p>
+                  <p style={{ margin: "0 0 8px 0", fontSize: "13px", color: "#4b5563" }}>
+                    Email: <span style={{ color: "#111827", fontWeight: "500" }}>{order.user?.email || "N/A"}</span>
+                  </p>
+
+                  <p style={{ margin: "8px 0 8px 0", fontSize: "14px", fontWeight: "600", color: "#374151", borderTop: "1px solid #e5e7eb", paddingTop: "8px" }}>Shipping Address:</p>
+                  {order.shippingAddress ? (
+                    <p style={{ margin: 0, fontSize: "13px", color: "#4b5563", lineHeight: "1.4" }}>
+                      {order.shippingAddress.street}<br />
+                      {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zip}
+                    </p>
+                  ) : (
+                    <p style={{ margin: 0, fontSize: "13px", color: "#9ca3af", fontStyle: "italic" }}>No address provided</p>
+                  )}
+                </div>
+
+                <div style={{ backgroundColor: "#f9fafb", padding: "12px", borderRadius: "6px", marginBottom: "15px" }}>
+                  <p style={{ margin: "0 0 8px 0", fontSize: "14px", fontWeight: "600", color: "#374151" }}>Ordered Items:</p>
                   <ul style={{ margin: 0, paddingLeft: "20px", fontSize: "14px", color: "#4b5563" }}>
                     {order.items.map((item, i) => (
                       <li key={i} style={{ marginBottom: "4px" }}>
