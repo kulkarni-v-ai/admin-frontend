@@ -124,7 +124,7 @@ function AdminProducts() {
   };
 
   // Roles mapped to capabilities
-  const canAddEdit = hasRole(["superadmin", "admin"]);
+  const canAddEdit = hasRole(["superadmin", "admin", "manager"]);
   const canDelete = hasRole(["superadmin"]);
 
   if (loading) {
