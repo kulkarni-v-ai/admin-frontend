@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../utils/api";
 import { useAuth } from "../hooks/useAuth";
-import { FiEdit2, FiTrash2, FiPlus, FiX } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiPlus, FiX, FiExternalLink } from "react-icons/fi";
 
 function AdminProducts() {
   const { hasRole } = useAuth();
@@ -216,6 +216,15 @@ function AdminProducts() {
                     <FiTrash2 size={14} /> Delete
                   </button>
                 )}
+                <a
+                  href={`http://localhost:5173/product/${product._id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", padding: "8px", backgroundColor: "#ecfdf5", border: "none", borderRadius: "4px", color: "#059669", cursor: "pointer", textDecoration: "none", fontSize: "14px" }}
+                  title="View details on customer site"
+                >
+                  <FiExternalLink size={14} /> View
+                </a>
                 {!canAddEdit && !canDelete && (
                   <span style={{ color: "#9ca3af", fontSize: "12px", width: "100%", textAlign: "center" }}>View Only</span>
                 )}
@@ -279,7 +288,7 @@ function AdminProducts() {
 
               <div>
                 <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Description</label>
-                <textarea rows={3} required value={description} onChange={(e) => setDescription(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box", fontFamily: "inherit" }} />
+                <textarea rows={10} required value={description} onChange={(e) => setDescription(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box", fontFamily: "inherit", resize: "vertical" }} />
               </div>
 
               <div>
