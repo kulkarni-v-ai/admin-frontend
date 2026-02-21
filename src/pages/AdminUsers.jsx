@@ -16,31 +16,40 @@ function AdminUsers() {
     const [password, setPassword] = useState("");
     const [role, setRole] = useState("manager"); // default role
 
-    useEffect(() => {
-        fetchUsers();
-    }, []);
+    const [view, setView] = useState("team"); // "team" or "customers"
 
-    const fetchUsers = async () => {
+    useEffect(() => {
+        fetchData();
+    }, [view]);
+
+    const fetchData = async () => {
         try {
             setLoading(true);
-            // Fallback data in case the endpoint doesn't exist yet on the backend
-            try {
-                const res = await api.get("/admin/users");
-                setUsers(res.data);
-            } catch (err) {
-                if (err.response?.status === 404) {
-                    setError("The /admin/users endpoint does not exist on the backend yet. Showing placeholder UI.");
-                    setUsers([
-                        { _id: "1", username: "super_admin", role: "superadmin" },
-                        { _id: "2", username: "store_manager", role: "manager" }
-                    ]);
-                } else {
-                    throw err;
+            setError("");
+
+            if (view === "team") {
+                try {
+                    const res = await api.get("/admin/users");
+                    // Ensure every user has an _id (handle both 'id' and '_id')
+                    const normalized = res.data.map(u => ({ ...u, _id: u._id || u.id }));
+                    setUsers(normalized);
+                } catch (err) {
+                    if (err.response?.status === 404) {
+                        setUsers([
+                            { _id: "1", username: "super_admin", role: "superadmin" },
+                            { _id: "2", username: "store_manager", role: "manager" }
+                        ]);
+                    } else throw err;
                 }
+            } else {
+                // Fetch Customers from the new endpoint
+                const res = await api.get("/auth/users");
+                const normalized = res.data.map(u => ({ ...u, _id: u._id || u.id, username: u.name || u.email }));
+                setUsers(normalized);
             }
         } catch (err) {
             console.error(err);
-            setError("Failed to load users. Please try again.");
+            setError(`Failed to load ${view}. Please try again.`);
         } finally {
             setLoading(false);
         }
@@ -63,20 +72,18 @@ function AdminUsers() {
         setError("");
 
         try {
-            // Typically /admin/register or /admin/users
             const res = await api.post("/admin/register", { username, password, role });
 
-            // Update UI optimistically or refetch
-            if (res.data) {
-                setUsers([...users, res.data.admin || res.data]);
-            } else {
-                await fetchUsers();
+            if (view === "team") {
+                const newUser = res.data.admin || res.data;
+                const normalized = { ...newUser, _id: newUser._id || newUser.id };
+                setUsers([...users, normalized]);
             }
 
             closeModal();
         } catch (err) {
             console.error(err);
-            setError(err.response?.data?.message || "Failed to create user. Verify backend endpoints.");
+            setError(err.response?.data?.message || "Failed to create user.");
         } finally {
             setIsSubmitting(false);
         }
@@ -84,18 +91,19 @@ function AdminUsers() {
 
     const deleteUser = async (id, userRole) => {
         if (userRole === "superadmin") {
-            alert("Cannot delete another superadmin for safety reasons.");
+            alert("Cannot delete another superadmin.");
             return;
         }
 
-        if (!window.confirm("Are you sure you want to delete this user track?")) return;
+        if (!window.confirm(`Are you sure you want to delete this ${view === 'team' ? 'team member' : 'customer'}?`)) return;
 
         try {
-            await api.delete(`/admin/users/${id}`);
+            const endpoint = view === "team" ? `/admin/users/${id}` : `/auth/users/${id}`;
+            await api.delete(endpoint);
             setUsers(users.filter(u => u._id !== id));
         } catch (err) {
             console.error(err);
-            setError("Failed to delete user. The endpoint might not be implemented.");
+            setError("Failed to delete user. Not implemented for customers yet.");
         }
     };
 
@@ -108,18 +116,40 @@ function AdminUsers() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
                 <h2 style={{ margin: 0, color: "#111827", display: "flex", alignItems: "center", gap: "10px" }}>
                     <FiShield style={{ color: "#dc2626" }} />
-                    Superadmin: User Management
+                    User Management
                 </h2>
-                <button
-                    onClick={openModal}
-                    style={{
-                        display: "flex", alignItems: "center", gap: "8px",
-                        padding: "10px 16px", backgroundColor: "#3b82f6", color: "white",
-                        border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "500"
-                    }}
-                >
-                    <FiPlus /> Create New User
-                </button>
+                <div style={{ display: "flex", gap: "10px", backgroundColor: "#f3f4f6", padding: "4px", borderRadius: "8px" }}>
+                    <button
+                        onClick={() => setView("team")}
+                        style={{
+                            padding: "6px 16px", borderRadius: "6px", border: "none", cursor: "pointer",
+                            backgroundColor: view === "team" ? "white" : "transparent",
+                            boxShadow: view === "team" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                            fontWeight: "600", color: view === "team" ? "#111827" : "#6b7280"
+                        }}
+                    >Team Members</button>
+                    <button
+                        onClick={() => setView("customers")}
+                        style={{
+                            padding: "6px 16px", borderRadius: "6px", border: "none", cursor: "pointer",
+                            backgroundColor: view === "customers" ? "white" : "transparent",
+                            boxShadow: view === "customers" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                            fontWeight: "600", color: view === "customers" ? "#111827" : "#6b7280"
+                        }}
+                    >Customers</button>
+                </div>
+                {view === "team" && (
+                    <button
+                        onClick={openModal}
+                        style={{
+                            display: "flex", alignItems: "center", gap: "8px",
+                            padding: "10px 16px", backgroundColor: "#3b82f6", color: "white",
+                            border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "500"
+                        }}
+                    >
+                        <FiPlus /> Create New User
+                    </button>
+                )}
             </div>
 
             {error && (
