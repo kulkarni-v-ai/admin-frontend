@@ -11,25 +11,21 @@ const Logo = () => {
             style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "10px",
+                gap: "12px",
                 cursor: "pointer"
             }}
         >
-            <motion.div
-                whileHover={{ rotate: 180 }}
-                transition={{ duration: 0.4, type: "spring" }}
+            <img
+                src="/logo.png"
+                alt="Logo"
                 style={{
-                    background: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)",
-                    padding: "8px",
-                    borderRadius: "12px",
-                    boxShadow: "0 4px 12px rgba(99, 102, 241, 0.4)",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center"
+                    width: "42px",
+                    height: "42px",
+                    borderRadius: "50%",
+                    border: "2px solid rgba(255, 255, 255, 0.1)",
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)"
                 }}
-            >
-                <Package color="white" size={24} />
-            </motion.div>
+            />
             <h2 style={{
                 margin: 0,
                 background: "linear-gradient(to right, #ffffff, #d1d5db)",
@@ -39,7 +35,7 @@ const Logo = () => {
                 fontWeight: "800",
                 letterSpacing: "-0.5px"
             }}>
-                V Portal <span style={{ fontWeight: "400", opacity: 0.8 }}>Admin</span>
+                HOUSE OF VISUALS <span style={{ fontWeight: "400", opacity: 0.8 }}>Admin</span>
             </h2>
         </motion.div>
     );
