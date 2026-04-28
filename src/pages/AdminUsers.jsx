@@ -168,12 +168,12 @@ function AdminUsers() {
     };
 
     const deleteUser = async (id, userRole, targetUsername) => {
-        if (targetUsername === "devcobraaa") {
-            alert("Cannot delete the devcobraaa owner account.");
+        if (targetUsername === "devcobraaa" || targetUsername === "shivalika@hov") {
+            alert("Cannot delete the owner account.");
             return;
         }
-        if (userRole === "superadmin" && currentUser?.username !== "devcobraaa" && id !== (currentUser?.id || currentUser?._id)) {
-            alert("Only devcobraaa can delete other superadmin accounts.");
+        if (userRole === "superadmin" && currentUser?.username !== "devcobraaa" && currentUser?.username !== "shivalika@hov" && id !== (currentUser?.id || currentUser?._id)) {
+            alert("Only the owner can delete other superadmin accounts.");
             return;
         }
 
@@ -281,22 +281,22 @@ function AdminUsers() {
                                     <button
                                         onClick={() => deleteUser(u._id, u.role, u.username)}
                                         disabled={
-                                            (u.role === "superadmin" && currentUser?.username !== "devcobraaa") || 
-                                            u.username === "devcobraaa" || 
+                                            (u.role === "superadmin" && currentUser?.username !== "devcobraaa" && currentUser?.username !== "shivalika@hov") || 
+                                            u.username === "devcobraaa" || u.username === "shivalika@hov" || 
                                             u._id === (currentUser?.id || currentUser?._id)
                                         }
                                         style={{
                                             padding: "8px", 
-                                            backgroundColor: ((u.role === "superadmin" && currentUser?.username !== "devcobraaa") || u.username === "devcobraaa" || u._id === (currentUser?.id || currentUser?._id)) ? "#f3f4f6" : "#fee2e2",
-                                            color: ((u.role === "superadmin" && currentUser?.username !== "devcobraaa") || u.username === "devcobraaa" || u._id === (currentUser?.id || currentUser?._id)) ? "#9ca3af" : "#dc2626",
+                                            backgroundColor: ((u.role === "superadmin" && currentUser?.username !== "devcobraaa" && currentUser?.username !== "shivalika@hov") || u.username === "devcobraaa" || u.username === "shivalika@hov" || u._id === (currentUser?.id || currentUser?._id)) ? "#f3f4f6" : "#fee2e2",
+                                            color: ((u.role === "superadmin" && currentUser?.username !== "devcobraaa" && currentUser?.username !== "shivalika@hov") || u.username === "devcobraaa" || u.username === "shivalika@hov" || u._id === (currentUser?.id || currentUser?._id)) ? "#9ca3af" : "#dc2626",
                                             border: "none", 
                                             borderRadius: "4px", 
-                                            cursor: ((u.role === "superadmin" && currentUser?.username !== "devcobraaa") || u.username === "devcobraaa" || u._id === (currentUser?.id || currentUser?._id)) ? "not-allowed" : "pointer"
+                                            cursor: ((u.role === "superadmin" && currentUser?.username !== "devcobraaa" && currentUser?.username !== "shivalika@hov") || u.username === "devcobraaa" || u.username === "shivalika@hov" || u._id === (currentUser?.id || currentUser?._id)) ? "not-allowed" : "pointer"
                                         }}
                                         title={
-                                            u.username === "devcobraaa" ? "Owner cannot be deleted" :
+                                            (u.username === "devcobraaa" || u.username === "shivalika@hov") ? "Owner cannot be deleted" :
                                             u._id === (currentUser?.id || currentUser?._id) ? "Cannot delete yourself" :
-                                            (u.role === "superadmin" && currentUser?.username !== "devcobraaa") ? "Only devcobraaa can delete superadmins" : "Delete user"
+                                            (u.role === "superadmin" && currentUser?.username !== "devcobraaa" && currentUser?.username !== "shivalika@hov") ? "Only the owner can delete superadmins" : "Delete user"
                                         }
                                     >
                                         <FiTrash2 size={16} />
@@ -342,7 +342,7 @@ function AdminUsers() {
 
                                     <div>
                                         <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Assigned Role</label>
-                                        <select value={role} disabled={(isEditMode && editingUserId === (currentUser?.id || currentUser?._id)) || (isEditMode && username === "devcobraaa")} onChange={(e) => setRole(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box", backgroundColor: ((isEditMode && editingUserId === (currentUser?.id || currentUser?._id)) || (isEditMode && username === "devcobraaa")) ? "#f3f4f6" : "white" }}>
+                                        <select value={role} disabled={(isEditMode && editingUserId === (currentUser?.id || currentUser?._id)) || (isEditMode && (username === "devcobraaa" || username === "shivalika@hov"))} onChange={(e) => setRole(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box", backgroundColor: ((isEditMode && editingUserId === (currentUser?.id || currentUser?._id)) || (isEditMode && (username === "devcobraaa" || username === "shivalika@hov"))) ? "#f3f4f6" : "white" }}>
                                             <option value="manager">Manager (View/Update Orders)</option>
                                             <option value="admin">Admin (Manage Products & Orders)</option>
                                             <option value="superadmin">Superadmin (Full System Control)</option>
@@ -350,7 +350,7 @@ function AdminUsers() {
                                         {isEditMode && editingUserId === (currentUser?.id || currentUser?._id) && (
                                             <p style={{ fontSize: "12px", color: "#6b7280", margin: "4px 0 0 0" }}>You cannot change your own role to prevent accidental lockout.</p>
                                         )}
-                                        {isEditMode && username === "devcobraaa" && (
+                                        {isEditMode && (username === "devcobraaa" || username === "shivalika@hov") && (
                                             <p style={{ fontSize: "12px", color: "#6b7280", margin: "4px 0 0 0" }}>The owner role cannot be modified.</p>
                                         )}
                                     </div>
