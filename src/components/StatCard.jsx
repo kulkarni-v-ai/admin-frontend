@@ -18,7 +18,7 @@ const StatCard = ({ title, value, icon, color = "#4f46e5", delay = 0 }) => {
                 transition: { duration: 0.3 }
             }}
             style={{
-                background: "white",
+                background: "var(--bg-card)",
                 padding: "24px",
                 borderRadius: "16px",
                 border: "1px solid var(--border-color)",
@@ -53,7 +53,7 @@ const StatCard = ({ title, value, icon, color = "#4f46e5", delay = 0 }) => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: delay + 0.3 }}
-                    style={{ margin: "4px 0 0 0", fontSize: "1.625rem", fontWeight: 700, color: "#0f172a" }}
+                    style={{ margin: "4px 0 0 0", fontSize: "1.625rem", fontWeight: 700, color: "var(--text-primary)" }}
                 >
                     {value}
                 </motion.h3>

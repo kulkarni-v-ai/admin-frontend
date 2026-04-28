@@ -66,8 +66,8 @@ function AdminAnalytics() {
                 animate={{ opacity: 1, x: 0 }}
                 className="admin-header"
             >
-                <h1 style={{ fontSize: "2.25rem", fontWeight: 800, color: "#0f172a", marginBottom: "8px" }}>Business Analytics</h1>
-                <p style={{ color: "#64748b", fontSize: "1.1rem" }}>Detailed overview of store performance and customer behavior</p>
+                <h1 style={{ fontSize: "2.25rem", fontWeight: 800, color: "var(--text-primary)", marginBottom: "8px" }}>Business Analytics</h1>
+                <p style={{ color: "var(--text-muted)", fontSize: "1.1rem" }}>Detailed overview of store performance and customer behavior</p>
             </motion.div>
 
             <div className="dashboard-grid" style={{
@@ -117,9 +117,9 @@ function AdminAnalytics() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 }}
                     className="chart-card card"
-                    style={{ background: "white", padding: "24px", borderRadius: "20px", border: "1px solid #e2e8f0" }}
+                    style={{ background: "var(--bg-card)", padding: "24px", borderRadius: "20px", border: "1px solid var(--border-color)" }}
                 >
-                    <h3 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "24px" }}>Top 5 Purchased Products</h3>
+                    <h3 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "24px", color: "var(--text-primary)" }}>Top 5 Purchased Products</h3>
                     <div style={{ height: 350 }}>
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={stats.topPurchased || []} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
@@ -156,9 +156,9 @@ function AdminAnalytics() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 }}
                     className="chart-card card"
-                    style={{ background: "white", padding: "24px", borderRadius: "20px", border: "1px solid #e2e8f0" }}
+                    style={{ background: "var(--bg-card)", padding: "24px", borderRadius: "20px", border: "1px solid var(--border-color)" }}
                 >
-                    <h3 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "24px" }}>Top 5 Browsed Products</h3>
+                    <h3 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "24px", color: "var(--text-primary)" }}>Top 5 Browsed Products</h3>
                     <div style={{ height: 350 }}>
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={stats.topBrowsed || []} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
@@ -192,29 +192,29 @@ function AdminAnalytics() {
             </div>
 
             <div className="admin-lists-container" style={{ marginTop: "2rem" }}>
-                <div className="card">
-                    <h3>Low Stock Alerts</h3>
+                <div className="card" style={{ background: "var(--bg-card)", padding: "24px", borderRadius: "20px", border: "1px solid var(--border-color)" }}>
+                    <h3 style={{ color: "var(--text-primary)" }}>Low Stock Alerts</h3>
                     {(stats.lowStock || []).length > 0 ? (
-                        <table className="admin-table">
+                        <table className="admin-table" style={{ color: "var(--text-primary)" }}>
                             <thead>
                                 <tr>
-                                    <th>Product Name</th>
-                                    <th>Stock Remaining</th>
-                                    <th>Price</th>
+                                    <th style={{ color: "var(--text-muted)" }}>Product Name</th>
+                                    <th style={{ color: "var(--text-muted)" }}>Stock Remaining</th>
+                                    <th style={{ color: "var(--text-muted)" }}>Price</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {stats.lowStock.map(p => (
                                     <tr key={p._id}>
                                         <td>{p.name}</td>
-                                        <td style={{ color: "red", fontWeight: "bold" }}>{p.stock}</td>
+                                        <td style={{ color: "#ef4444", fontWeight: "bold" }}>{p.stock}</td>
                                         <td>₹{p.price}</td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     ) : (
-                        <p style={{ padding: "1rem", color: "#6b7280" }}>No low stock products right now!</p>
+                        <p style={{ padding: "1rem", color: "var(--text-muted)" }}>No low stock products right now!</p>
                     )}
                 </div>
             </div>
