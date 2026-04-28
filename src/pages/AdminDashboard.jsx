@@ -25,7 +25,7 @@ const StatCard = ({ title, value, icon, trend, trendValue, color, loading }) => 
     <motion.div
         whileHover={{ y: -5 }}
         style={{
-            backgroundColor: "white",
+            backgroundColor: "var(--bg-card)",
             padding: "24px",
             borderRadius: "16px",
             boxShadow: "var(--card-shadow)",
@@ -192,7 +192,7 @@ const AdminDashboard = () => {
             }}>
                 {/* Chart Card */}
                 <div style={{
-                    backgroundColor: "white",
+                    backgroundColor: "var(--bg-card)",
                     padding: "24px",
                     borderRadius: "16px",
                     boxShadow: "var(--card-shadow)",
@@ -260,15 +260,16 @@ const AdminDashboard = () => {
 
                 {/* Right Column: System Status */}
                 <div style={{
-                    backgroundColor: "#0f172a",
+                    backgroundColor: "var(--bg-card)",
                     padding: "24px",
                     borderRadius: "16px",
-                    color: "white",
+                    border: "1px solid var(--border-color)",
+                    color: "var(--text-primary)",
                     display: "flex",
                     flexDirection: "column",
                     gap: "24px"
                 }}>
-                    <h3 style={{ margin: 0, fontSize: "1.125rem", color: "white" }}>System Status</h3>
+                    <h3 style={{ margin: 0, fontSize: "1.125rem", color: "var(--text-primary)" }}>System Status</h3>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                         {[
@@ -300,10 +301,10 @@ const AdminDashboard = () => {
                             style={{
                                 width: "100%",
                                 padding: "10px",
-                                backgroundColor: "white",
-                                color: "#0f172a",
+                                backgroundColor: "var(--primary)",
+                                color: "#111",
                                 border: "none",
-                                borderRadius: "#8px",
+                                borderRadius: "8px",
                                 fontWeight: 600,
                                 cursor: "pointer"
                             }}
