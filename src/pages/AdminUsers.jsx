@@ -196,27 +196,25 @@ function AdminUsers() {
     return (
         <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-                <h2 style={{ margin: 0, color: "#111827", display: "flex", alignItems: "center", gap: "10px" }}>
-                    <FiShield style={{ color: "#dc2626" }} />
+                <h2 style={{ margin: 0, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "10px" }}>
+                    <FiShield style={{ color: "var(--primary)" }} />
                     User Management
                 </h2>
-                <div style={{ display: "flex", gap: "10px", backgroundColor: "#f3f4f6", padding: "4px", borderRadius: "8px" }}>
+                <div style={{ display: "flex", gap: "10px", backgroundColor: "var(--bg-card)", padding: "4px", borderRadius: "8px", border: "1px solid var(--border-color)" }}>
                     <button
                         onClick={() => setView("team")}
                         style={{
                             padding: "6px 16px", borderRadius: "6px", border: "none", cursor: "pointer",
-                            backgroundColor: view === "team" ? "white" : "transparent",
-                            boxShadow: view === "team" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
-                            fontWeight: "600", color: view === "team" ? "#111827" : "#6b7280"
+                            backgroundColor: view === "team" ? "var(--border-color)" : "transparent",
+                            fontWeight: "600", color: view === "team" ? "var(--text-primary)" : "var(--text-muted)"
                         }}
                     >Team Members</button>
                     <button
                         onClick={() => setView("customers")}
                         style={{
                             padding: "6px 16px", borderRadius: "6px", border: "none", cursor: "pointer",
-                            backgroundColor: view === "customers" ? "white" : "transparent",
-                            boxShadow: view === "customers" ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
-                            fontWeight: "600", color: view === "customers" ? "#111827" : "#6b7280"
+                            backgroundColor: view === "customers" ? "var(--border-color)" : "transparent",
+                            fontWeight: "600", color: view === "customers" ? "var(--text-primary)" : "var(--text-muted)"
                         }}
                     >Customers</button>
                 </div>
@@ -225,8 +223,8 @@ function AdminUsers() {
                         onClick={openModal}
                         style={{
                             display: "flex", alignItems: "center", gap: "8px",
-                            padding: "10px 16px", backgroundColor: "#3b82f6", color: "white",
-                            border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "500"
+                            padding: "10px 16px", backgroundColor: "var(--primary)", color: "#111",
+                            border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "600"
                         }}
                     >
                         <FiPlus /> Create New User
@@ -241,19 +239,19 @@ function AdminUsers() {
             )}
 
             {/* Users Table */}
-            <div style={{ backgroundColor: "white", borderRadius: "8px", border: "1px solid #e5e7eb", overflow: "hidden" }}>
+            <div style={{ backgroundColor: "var(--bg-card)", borderRadius: "8px", border: "1px solid var(--border-color)", overflow: "hidden" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-                    <thead style={{ backgroundColor: "#f9fafb", borderBottom: "1px solid #e5e7eb" }}>
+                    <thead style={{ backgroundColor: "rgba(255,255,255,0.02)", borderBottom: "1px solid var(--border-color)" }}>
                         <tr>
-                            <th style={{ padding: "12px 20px", color: "#6b7280", fontWeight: "600", fontSize: "14px" }}>Username</th>
-                            <th style={{ padding: "12px 20px", color: "#6b7280", fontWeight: "600", fontSize: "14px" }}>Role</th>
-                            <th style={{ padding: "12px 20px", color: "#6b7280", fontWeight: "600", fontSize: "14px", textAlign: "right" }}>Actions</th>
+                            <th style={{ padding: "12px 20px", color: "var(--text-muted)", fontWeight: "600", fontSize: "14px" }}>Username</th>
+                            <th style={{ padding: "12px 20px", color: "var(--text-muted)", fontWeight: "600", fontSize: "14px" }}>Role</th>
+                            <th style={{ padding: "12px 20px", color: "var(--text-muted)", fontWeight: "600", fontSize: "14px", textAlign: "right" }}>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {users.map((u) => (
-                            <tr key={u._id} style={{ borderBottom: "1px solid #e5e7eb" }}>
-                                <td style={{ padding: "16px 20px", fontWeight: "500", color: "#111827" }}>{u.username}</td>
+                            <tr key={u._id} style={{ borderBottom: "1px solid var(--border-color)" }}>
+                                <td style={{ padding: "16px 20px", fontWeight: "500", color: "var(--text-primary)" }}>{u.username}</td>
                                 <td style={{ padding: "16px 20px" }}>
                                     <span style={{
                                         fontSize: "12px",
@@ -271,8 +269,8 @@ function AdminUsers() {
                                     <button
                                         onClick={() => openModal(u)}
                                         style={{
-                                            padding: "8px", backgroundColor: "#eff6ff",
-                                            color: "#2563eb", border: "none", borderRadius: "4px", cursor: "pointer"
+                                            padding: "8px", backgroundColor: "rgba(59, 130, 246, 0.1)",
+                                            color: "#3b82f6", border: "none", borderRadius: "4px", cursor: "pointer"
                                         }}
                                         title={`Edit ${view === 'team' ? 'team member' : 'customer'} details`}
                                     >
@@ -287,8 +285,8 @@ function AdminUsers() {
                                         }
                                         style={{
                                             padding: "8px", 
-                                            backgroundColor: ((u.role === "superadmin" && currentUser?.username !== "devcobraaa" && currentUser?.username !== "shivalika@hov") || u.username === "devcobraaa" || u.username === "shivalika@hov" || u._id === (currentUser?.id || currentUser?._id)) ? "#f3f4f6" : "#fee2e2",
-                                            color: ((u.role === "superadmin" && currentUser?.username !== "devcobraaa" && currentUser?.username !== "shivalika@hov") || u.username === "devcobraaa" || u.username === "shivalika@hov" || u._id === (currentUser?.id || currentUser?._id)) ? "#9ca3af" : "#dc2626",
+                                            backgroundColor: ((u.role === "superadmin" && currentUser?.username !== "devcobraaa" && currentUser?.username !== "shivalika@hov") || u.username === "devcobraaa" || u.username === "shivalika@hov" || u._id === (currentUser?.id || currentUser?._id)) ? "rgba(255,255,255,0.05)" : "rgba(239, 68, 68, 0.1)",
+                                            color: ((u.role === "superadmin" && currentUser?.username !== "devcobraaa" && currentUser?.username !== "shivalika@hov") || u.username === "devcobraaa" || u.username === "shivalika@hov" || u._id === (currentUser?.id || currentUser?._id)) ? "#4b5563" : "#ef4444",
                                             border: "none", 
                                             borderRadius: "4px", 
                                             cursor: ((u.role === "superadmin" && currentUser?.username !== "devcobraaa" && currentUser?.username !== "shivalika@hov") || u.username === "devcobraaa" || u.username === "shivalika@hov" || u._id === (currentUser?.id || currentUser?._id)) ? "not-allowed" : "pointer"
