@@ -1,18 +1,18 @@
 :root {
-  --primary: #3b82f6;
-  --primary-hover: #2563eb;
-  --bg-main: #f8fafc;
-  --bg-sidebar: #0f172a;
+  --primary: #d4af37;
+  --primary-hover: #b8962c;
+  --bg-main: #050505;
+  --bg-sidebar: #030303;
   --sidebar-width: 260px;
   --sidebar-collapsed-width: 80px;
   --navbar-height: 64px;
-  --text-main: #1e293b;
-  --text-muted: #64748b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
   --text-sidebar: #94a3b8;
-  --text-sidebar-active: #f8fafc;
-  --border-color: #e2e8f0;
-  --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-  --glass: rgba(255, 255, 255, 0.7);
+  --text-sidebar-active: #ffffff;
+  --border-color: rgba(255, 255, 255, 0.08);
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --glass: rgba(15, 15, 15, 0.7);
 }
 
 * {
@@ -31,7 +31,7 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
-  color: #0f172a;
+  color: #ffffff;
 }
 
 button {

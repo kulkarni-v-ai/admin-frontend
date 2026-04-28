@@ -15,17 +15,21 @@ const Logo = () => {
                 cursor: "pointer"
             }}
         >
-            <img
-                src="/logo.png"
-                alt="Logo"
-                style={{
-                    width: "42px",
-                    height: "42px",
-                    borderRadius: "50%",
-                    border: "2px solid rgba(255, 255, 255, 0.1)",
-                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.2)"
-                }}
-            />
+            <div style={{
+                width: "42px",
+                height: "42px",
+                borderRadius: "50%",
+                background: "linear-gradient(135deg, #d4af37, #b8962c)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#000",
+                fontWeight: "900",
+                fontSize: "18px",
+                boxShadow: "0 4px 12px rgba(212, 175, 55, 0.3)"
+            }}>
+                HOV
+            </div>
             <h2 style={{
                 margin: 0,
                 background: "linear-gradient(to right, #ffffff, #d1d5db)",
