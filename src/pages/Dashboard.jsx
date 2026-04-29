@@ -10,6 +10,7 @@ import AdminAnalytics from "./AdminAnalytics";
 import AdminProfile from "./AdminProfile";
 import SystemMonitoring from "./SystemMonitoring";
 import ActivityLogs from "./ActivityLogs";
+import EditLandingPage from "./EditLandingPage";
 import PageTransition from "../components/PageTransition";
 
 function Dashboard() {
@@ -30,11 +31,12 @@ function Dashboard() {
             <Route path="profile" element={<PageTransition><AdminProfile /></PageTransition>} />
           </Route>
 
-          {/* Superadmin Only: Users and System monitoring */}
+          {/* Superadmin Only: Users, System monitoring and CMS */}
           <Route element={<ProtectedRoute allowedRoles={['superadmin']} />}>
-            <Route path="users" element={<PageTransition><AdminUsers /></PageTransition>} />
+            <Route path="users"           element={<PageTransition><AdminUsers /></PageTransition>} />
             <Route path="system-overview" element={<PageTransition><SystemMonitoring /></PageTransition>} />
-            <Route path="system-logs" element={<PageTransition><ActivityLogs /></PageTransition>} />
+            <Route path="system-logs"     element={<PageTransition><ActivityLogs /></PageTransition>} />
+            <Route path="edit-landing"    element={<PageTransition><EditLandingPage /></PageTransition>} />
           </Route>
 
           {/* Catch-all */}

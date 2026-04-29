@@ -59,11 +59,10 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
             allowedRoles: ["superadmin"]
         },
         {
-            path: "https://houseofvisuals.co.in",
+            path: "/dashboard/edit-landing",
             label: "Edit Landing Page",
             icon: <FiLayout />,
             allowedRoles: ["superadmin"],
-            external: true
         }
     ];
 
