@@ -23,6 +23,7 @@ function AdminUsers() {
 
     const [view, setView] = useState("team"); // "team" or "customers"
     const [sortOrder, setSortOrder] = useState("default"); // "default", "asc", "desc"
+    const [searchQuery, setSearchQuery] = useState("");
 
     // Customer Edit State
     const [name, setName] = useState("");
@@ -206,6 +207,15 @@ function AdminUsers() {
         return sortOrder === "asc" ? weightA - weightB : weightB - weightA;
     });
 
+    const filteredUsers = sortedUsers.filter(u => {
+        if (!searchQuery) return true;
+        const q = searchQuery.toLowerCase();
+        return (u.username && u.username.toLowerCase().includes(q)) ||
+               (u.role && u.role.toLowerCase().includes(q)) ||
+               (u.name && u.name.toLowerCase().includes(q)) ||
+               (u.email && u.email.toLowerCase().includes(q));
+    });
+
     return (
         <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
@@ -231,18 +241,31 @@ function AdminUsers() {
                         }}
                     >Customers</button>
                 </div>
-                {view === "team" && (
-                    <button
-                        onClick={() => openModal(null)}
-                        style={{
-                            display: "flex", alignItems: "center", gap: "8px",
-                            padding: "10px 16px", backgroundColor: "var(--primary)", color: "#111",
-                            border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "600"
+                
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                    <input 
+                        type="text" 
+                        placeholder="Search users..." 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        style={{ 
+                            padding: "10px 16px", borderRadius: "6px", border: "1px solid var(--border-color)", 
+                            backgroundColor: "var(--bg-card)", color: "var(--text-primary)", outline: "none", minWidth: "250px"
                         }}
-                    >
-                        <FiPlus /> Create New User
-                    </button>
-                )}
+                    />
+                    {view === "team" && (
+                        <button
+                            onClick={() => openModal(null)}
+                            style={{
+                                display: "flex", alignItems: "center", gap: "8px",
+                                padding: "10px 16px", backgroundColor: "var(--primary)", color: "#111",
+                                border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "600", whiteSpace: "nowrap"
+                            }}
+                        >
+                            <FiPlus /> Create New User
+                        </button>
+                    )}
+                </div>
             </div>
 
             {error && (
@@ -268,7 +291,14 @@ function AdminUsers() {
                         </tr>
                     </thead>
                     <tbody>
-                        {sortedUsers.map((u) => (
+                        {filteredUsers.length === 0 ? (
+                            <tr>
+                                <td colSpan="3" style={{ padding: "30px", textAlign: "center", color: "var(--text-muted)" }}>
+                                    No users found matching "{searchQuery}"
+                                </td>
+                            </tr>
+                        ) : (
+                            filteredUsers.map((u) => (
                             <tr key={u._id} style={{ borderBottom: "1px solid var(--border-color)" }}>
                                 <td style={{ padding: "16px 20px", fontWeight: "500", color: "var(--text-primary)" }}>{u.username}</td>
                                 <td style={{ padding: "16px 20px" }}>
@@ -326,7 +356,7 @@ function AdminUsers() {
                                     </button>
                                 </td>
                             </tr>
-                        ))}
+                        )))}
                     </tbody>
                 </table>
             </div>
