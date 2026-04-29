@@ -22,6 +22,7 @@ function AdminUsers() {
     const [editingUserId, setEditingUserId] = useState(null);
 
     const [view, setView] = useState("team"); // "team" or "customers"
+    const [sortOrder, setSortOrder] = useState("default"); // "default", "asc", "desc"
 
     // Customer Edit State
     const [name, setName] = useState("");
@@ -191,6 +192,20 @@ function AdminUsers() {
         return <div style={{ textAlign: "center", padding: "40px" }}>Loading users...</div>;
     }
 
+    const toggleSort = () => {
+        if (sortOrder === "default") setSortOrder("desc");
+        else if (sortOrder === "desc") setSortOrder("asc");
+        else setSortOrder("default");
+    };
+
+    const sortedUsers = [...users].sort((a, b) => {
+        if (sortOrder === "default") return 0;
+        const roleWeight = { "superadmin": 3, "admin": 2, "manager": 1 };
+        const weightA = roleWeight[a.role] || 0;
+        const weightB = roleWeight[b.role] || 0;
+        return sortOrder === "asc" ? weightA - weightB : weightB - weightA;
+    });
+
     return (
         <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
@@ -242,12 +257,18 @@ function AdminUsers() {
                     <thead style={{ backgroundColor: "rgba(255,255,255,0.02)", borderBottom: "1px solid var(--border-color)" }}>
                         <tr>
                             <th style={{ padding: "12px 20px", color: "var(--text-muted)", fontWeight: "600", fontSize: "14px" }}>Username</th>
-                            <th style={{ padding: "12px 20px", color: "var(--text-muted)", fontWeight: "600", fontSize: "14px" }}>Role</th>
+                            <th 
+                                style={{ padding: "12px 20px", color: "var(--text-muted)", fontWeight: "600", fontSize: "14px", cursor: "pointer", userSelect: "none" }}
+                                onClick={toggleSort}
+                                title="Click to sort by role"
+                            >
+                                Role {sortOrder === "asc" ? "↑" : sortOrder === "desc" ? "↓" : "↕"}
+                            </th>
                             <th style={{ padding: "12px 20px", color: "var(--text-muted)", fontWeight: "600", fontSize: "14px", textAlign: "right" }}>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map((u) => (
+                        {sortedUsers.map((u) => (
                             <tr key={u._id} style={{ borderBottom: "1px solid var(--border-color)" }}>
                                 <td style={{ padding: "16px 20px", fontWeight: "500", color: "var(--text-primary)" }}>{u.username}</td>
                                 <td style={{ padding: "16px 20px" }}>
