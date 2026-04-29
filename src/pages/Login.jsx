@@ -13,6 +13,8 @@ function Login() {
   const { login, user } = useAuth();
   const navigate = useNavigate();
 
+  const [buttonPosition, setButtonPosition] = useState({ x: 0, y: 0 });
+
   useEffect(() => {
     if (user) {
       navigate("/dashboard", { replace: true });
@@ -35,36 +37,52 @@ function Login() {
     setIsLoading(false);
   };
 
+  const isFormValid = username.length >= 3 && password.length >= 5;
+
+  const handleButtonHover = () => {
+    if (!isFormValid) {
+      const maxX = 150;
+      const maxY = 150;
+      const randomX = Math.floor(Math.random() * maxX * 2) - maxX;
+      const randomY = Math.floor(Math.random() * maxY * 2) - maxY;
+      setButtonPosition({ x: randomX, y: randomY });
+    } else {
+      setButtonPosition({ x: 0, y: 0 });
+    }
+  };
+
   return (
     <div style={{
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
       minHeight: "100vh",
-      background: "radial-gradient(circle at top left, #1e293b 0%, #0f172a 100%)",
-      padding: "20px"
+      backgroundColor: "#050505", // Deep black theme from landing page
+      backgroundImage: "linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)",
+      backgroundSize: "40px 40px",
+      padding: "20px",
+      position: "relative",
+      overflow: "hidden"
     }}>
-      {/* Decorative Blur Blobs */}
+      {/* Neon Accents */}
       <div style={{
         position: "absolute",
-        top: "10%",
-        left: "15%",
-        width: "300px",
-        height: "300px",
-        background: "rgba(59, 130, 246, 0.15)",
-        filter: "blur(100px)",
-        borderRadius: "50%",
+        top: "-10%",
+        left: "-10%",
+        width: "500px",
+        height: "500px",
+        background: "radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, transparent 70%)",
+        filter: "blur(60px)",
         zIndex: 0
       }} />
       <div style={{
         position: "absolute",
-        bottom: "10%",
-        right: "15%",
-        width: "400px",
-        height: "400px",
-        background: "rgba(168, 85, 247, 0.1)",
-        filter: "blur(120px)",
-        borderRadius: "50%",
+        bottom: "-10%",
+        right: "-10%",
+        width: "600px",
+        height: "600px",
+        background: "radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%)",
+        filter: "blur(80px)",
         zIndex: 0
       }} />
 
@@ -73,13 +91,13 @@ function Login() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
         style={{
-          background: "rgba(30, 41, 59, 0.7)",
-          backdropFilter: "blur(16px)",
-          WebkitBackdropFilter: "blur(16px)",
+          background: "rgba(10, 10, 10, 0.6)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
           padding: "48px",
-          borderRadius: "32px",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+          borderRadius: "24px",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255,255,255,0.1)",
           width: "100%",
           maxWidth: "480px",
           zIndex: 1
@@ -93,9 +111,9 @@ function Login() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            style={{ color: "var(--text-sidebar)", fontSize: "14px", fontWeight: 500 }}
+            style={{ color: "#a1a1aa", fontSize: "14px", fontWeight: 500, letterSpacing: "0.5px" }}
           >
-            Enter your credentials to manage Admin Portal
+            Enter your credentials to access the HQ
           </motion.p>
         </div>
 
@@ -107,7 +125,7 @@ function Login() {
               background: "rgba(239, 68, 68, 0.1)",
               color: "#f87171",
               padding: "16px",
-              borderRadius: "16px",
+              borderRadius: "12px",
               marginBottom: "32px",
               fontSize: "14px",
               border: "1px solid rgba(239, 68, 68, 0.2)",
@@ -125,23 +143,25 @@ function Login() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <label style={{ display: "block", marginBottom: "8px", color: "#e2e8f0", fontSize: "14px", fontWeight: "600" }}>Username</label>
+            <label style={{ display: "block", marginBottom: "8px", color: "#e2e8f0", fontSize: "12px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "1px" }}>Username</label>
             <input
               type="text"
-              placeholder="e.g. superadmin"
+              placeholder="System ID"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               style={{
                 width: "100%",
                 padding: "16px",
-                borderRadius: "16px",
+                borderRadius: "12px",
                 border: "1px solid rgba(255, 255, 255, 0.1)",
-                background: "rgba(0, 0, 0, 0.2)",
+                background: "rgba(0, 0, 0, 0.4)",
                 color: "white",
                 fontSize: "16px",
                 outline: "none",
-                transition: "border-color 0.2s"
+                transition: "all 0.3s ease"
               }}
+              onFocus={(e) => e.target.style.borderColor = "rgba(168, 85, 247, 0.5)"}
+              onBlur={(e) => e.target.style.borderColor = "rgba(255, 255, 255, 0.1)"}
               required
             />
           </motion.div>
@@ -151,7 +171,7 @@ function Login() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <label style={{ display: "block", marginBottom: "8px", color: "#e2e8f0", fontSize: "14px", fontWeight: "600" }}>Password</label>
+            <label style={{ display: "block", marginBottom: "8px", color: "#e2e8f0", fontSize: "12px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "1px" }}>Password</label>
             <input
               type="password"
               placeholder="••••••••"
@@ -160,51 +180,68 @@ function Login() {
               style={{
                 width: "100%",
                 padding: "16px",
-                borderRadius: "16px",
+                borderRadius: "12px",
                 border: "1px solid rgba(255, 255, 255, 0.1)",
-                background: "rgba(0, 0, 0, 0.2)",
+                background: "rgba(0, 0, 0, 0.4)",
                 color: "white",
                 fontSize: "16px",
                 outline: "none",
-                transition: "border-color 0.2s"
+                transition: "all 0.3s ease"
               }}
+              onFocus={(e) => e.target.style.borderColor = "rgba(168, 85, 247, 0.5)"}
+              onBlur={(e) => e.target.style.borderColor = "rgba(255, 255, 255, 0.1)"}
               required
             />
           </motion.div>
 
-          <motion.button
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            type="submit"
-            disabled={isLoading}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            style={{
-              width: "100%",
-              padding: "16px",
-              background: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)",
-              color: "white",
-              border: "none",
-              borderRadius: "16px",
-              fontSize: "16px",
-              fontWeight: "700",
-              cursor: isLoading ? "not-allowed" : "pointer",
-              boxShadow: "0 10px 15px -3px rgba(99, 102, 241, 0.4)",
-              marginTop: "16px"
-            }}
-          >
-            {isLoading ? "Authenticating..." : "Sign In to Portal"}
-          </motion.button>
+          <div style={{ position: "relative", height: "60px", marginTop: "16px", display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <motion.button
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0, x: buttonPosition.x, y: buttonPosition.y }}
+              transition={{ 
+                opacity: { delay: 0.6 },
+                x: { type: "spring", stiffness: 300, damping: 20 },
+                y: { type: "spring", stiffness: 300, damping: 20 }
+              }}
+              onMouseEnter={handleButtonHover}
+              onClick={(e) => {
+                if (!isFormValid) {
+                  e.preventDefault();
+                  handleButtonHover();
+                }
+              }}
+              type={isFormValid ? "submit" : "button"}
+              disabled={isLoading}
+              whileHover={isFormValid ? { scale: 1.05 } : {}}
+              whileTap={isFormValid ? { scale: 0.95 } : {}}
+              style={{
+                position: "absolute",
+                width: "100%",
+                padding: "16px",
+                background: isFormValid ? "linear-gradient(135deg, #a855f7 0%, #6366f1 100%)" : "rgba(255,255,255,0.1)",
+                color: isFormValid ? "white" : "#a1a1aa",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: "12px",
+                fontSize: "16px",
+                fontWeight: "600",
+                letterSpacing: "1px",
+                cursor: isLoading ? "not-allowed" : (isFormValid ? "pointer" : "default"),
+                boxShadow: isFormValid ? "0 10px 20px -5px rgba(168, 85, 247, 0.4)" : "none",
+                transition: "background 0.3s, color 0.3s"
+              }}
+            >
+              {isLoading ? "Authenticating..." : "INITIALIZE"}
+            </motion.button>
+          </div>
         </form>
 
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
-          style={{ textAlign: "center", marginTop: "40px", color: "var(--text-sidebar)", fontSize: "14px" }}
+          style={{ textAlign: "center", marginTop: "40px", color: "#52525b", fontSize: "12px", letterSpacing: "1px", textTransform: "uppercase" }}
         >
-          Secure Session Initialized: {new Date().toLocaleDateString()}
+          Secure Connection • {new Date().toLocaleDateString()}
         </motion.p>
       </motion.div>
     </div>
