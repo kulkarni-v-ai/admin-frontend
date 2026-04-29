@@ -11,6 +11,7 @@ const AdminProfile = () => {
         address: ""
     });
     const [employeeId, setEmployeeId] = useState("");
+    const [roleTag, setRoleTag] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -30,6 +31,7 @@ const AdminProfile = () => {
                 address: data.address || ""
             });
             setEmployeeId(data.employeeId || "");
+            setRoleTag(data.roleTag || "");
         } catch (err) {
             setError("Failed to load profile details.");
         }
@@ -148,6 +150,16 @@ const AdminProfile = () => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="Leave blank to keep current"
                                 style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid var(--border-color)", outline: "none" }}
+                            />
+                        </div>
+                        
+                        <div>
+                            <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "8px" }}>Role Tag</label>
+                            <input
+                                type="text"
+                                value={roleTag || "None assigned"}
+                                disabled
+                                style={{ width: "100%", padding: "10px", borderRadius: "8px", border: "1px solid var(--border-color)", backgroundColor: "#f9fafb", cursor: "not-allowed", color: "var(--text-muted)" }}
                             />
                         </div>
                         

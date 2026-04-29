@@ -17,6 +17,7 @@ function AdminUsers() {
     const [password, setPassword] = useState("");
     const [role, setRole] = useState("manager"); // default role
     const [employeeId, setEmployeeId] = useState("");
+    const [roleTag, setRoleTag] = useState("");
     const { user: currentUser } = useContext(AuthContext);
 
     const [isEditMode, setIsEditMode] = useState(false);
@@ -111,6 +112,7 @@ function AdminUsers() {
                 setRole(userToEdit.role || "manager");
                 setPassword("");
                 setEmployeeId(userToEdit.employeeId || "");
+                setRoleTag(userToEdit.roleTag || "");
                 setName(userToEdit.name || "");
                 setEmail(userToEdit.emailAddress || userToEdit.email || "");
                 setContactNumber(userToEdit.contactNumber || "");
@@ -136,6 +138,7 @@ function AdminUsers() {
             setPassword("");
             setRole("manager");
             setEmployeeId("");
+            setRoleTag("");
             setName("");
             setEmail("");
             setContactNumber("");
@@ -167,9 +170,10 @@ function AdminUsers() {
                         emailAddress: email, 
                         contactNumber, 
                         address: address.street,
+                        roleTag,
                         ...(password && { password }) 
                     });
-                    setUsers(users.map(u => u._id === editingUserId ? { ...u, username, role, name, emailAddress: email, contactNumber, address: address.street } : u));
+                    setUsers(users.map(u => u._id === editingUserId ? { ...u, username, role, name, emailAddress: email, contactNumber, address: address.street, roleTag } : u));
                 } else {
                     const endpoint = `/admin/customers/${editingUserId}`;
                     const res = await api.put(endpoint, { name, email, contactNumber, address });
@@ -184,7 +188,8 @@ function AdminUsers() {
                         name,
                         emailAddress: email,
                         contactNumber,
-                        address: address.street
+                        address: address.street,
+                        roleTag
                     });
                     await fetchData();
                 }
@@ -353,6 +358,11 @@ function AdminUsers() {
                                             Owner
                                         </span>
                                     )}
+                                    {view === "team" && u.roleTag && u.username !== "devcobraaa" && (
+                                        <span style={{ marginLeft: "8px", backgroundColor: "#e0e7ff", color: "#4f46e5", padding: "2px 6px", borderRadius: "12px", fontSize: "0.75rem", fontWeight: "500" }}>
+                                            {u.roleTag}
+                                        </span>
+                                    )}
                                 </td>
                                 {view === "customers" && (
                                     <td style={{ padding: "16px", color: "var(--text-primary)" }}>{u.email}</td>
@@ -472,6 +482,10 @@ function AdminUsers() {
                                                     <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Address</label>
                                                     <input type="text" value={address.street} onChange={(e) => setAddress({ ...address, street: e.target.value })} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box" }} />
                                                 </div>
+                                            </div>
+                                            <div style={{ marginTop: "10px" }}>
+                                                <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Role Tag (e.g. Lead Developer)</label>
+                                                <input type="text" value={roleTag} onChange={(e) => setRoleTag(e.target.value)} placeholder="Custom title..." style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box" }} />
                                             </div>
                                         </>
                                     )}
