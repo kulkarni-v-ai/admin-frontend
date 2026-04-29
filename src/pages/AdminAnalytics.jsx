@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import api from "../utils/api";
 import {
     BarChart,
@@ -10,7 +10,7 @@ import {
     ResponsiveContainer,
 } from "recharts";
 import { motion } from "framer-motion";
-import { FiDollarSign, FiShoppingBag, FiTrendingUp, FiEye } from "react-icons/fi";
+import { FiDollarSign, FiShoppingBag, FiPackage, FiEye, FiRefreshCw } from "react-icons/fi";
 import StatCard from "../components/StatCard";
 
 function AdminAnalytics() {
@@ -18,11 +18,9 @@ function AdminAnalytics() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        fetchStats();
-    }, []);
-
-    const fetchStats = async () => {
+    const fetchStats = useCallback(async () => {
+        setLoading(true);
+        setError(null);
         try {
             const res = await api.get("/analytics/stats");
             setStats(res.data);
@@ -31,7 +29,11 @@ function AdminAnalytics() {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        fetchStats();
+    }, [fetchStats]);
 
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
@@ -56,8 +58,17 @@ function AdminAnalytics() {
     };
 
     if (loading) return <div className="loading" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "60vh", fontSize: "1.25rem", color: "var(--text-muted)" }}>Loading Analytics...</div>;
-    if (error) return <div className="error-message" style={{ padding: "2rem", textAlign: "center", color: "#ef4444" }}>{error}</div>;
+    if (error) return (
+        <div className="error-message" style={{ padding: "2rem", textAlign: "center", color: "#ef4444" }}>
+            <p>{error}</p>
+            <button onClick={fetchStats} style={{ marginTop: "1rem", padding: "8px 20px", background: "#4f46e5", color: "#fff", border: "none", borderRadius: "8px", cursor: "pointer" }}>Retry</button>
+        </div>
+    );
     if (!stats) return null;
+
+    // Map backend shape → chart-friendly arrays
+    const topPurchased = stats.topProducts?.selling || [];
+    const topBrowsed   = stats.topProducts?.viewed  || [];
 
     return (
         <div className="admin-page" style={{ padding: "24px", maxWidth: "1400px", margin: "0 auto" }}>
@@ -65,9 +76,24 @@ function AdminAnalytics() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 className="admin-header"
+                style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px" }}
             >
-                <h1 style={{ fontSize: "2.25rem", fontWeight: 800, color: "var(--text-primary)", marginBottom: "8px" }}>Business Analytics</h1>
-                <p style={{ color: "var(--text-muted)", fontSize: "1.1rem" }}>Detailed overview of store performance and customer behavior</p>
+                <div>
+                    <h1 style={{ fontSize: "2.25rem", fontWeight: 800, color: "var(--text-primary)", marginBottom: "8px" }}>Business Analytics</h1>
+                    <p style={{ color: "var(--text-muted)", fontSize: "1.1rem" }}>Detailed overview of store performance and customer behavior</p>
+                </div>
+                <button
+                    onClick={fetchStats}
+                    title="Refresh analytics"
+                    style={{
+                        display: "flex", alignItems: "center", gap: "6px",
+                        padding: "10px 18px", background: "#4f46e5", color: "#fff",
+                        border: "none", borderRadius: "10px", cursor: "pointer",
+                        fontWeight: 600, fontSize: "0.9rem"
+                    }}
+                >
+                    <FiRefreshCw size={15} /> Refresh
+                </button>
             </motion.div>
 
             <div className="dashboard-grid" style={{
@@ -78,28 +104,28 @@ function AdminAnalytics() {
             }}>
                 <StatCard
                     title="Total Revenue"
-                    value={`₹${(stats.overview?.totalRevenue || 0).toLocaleString()}`}
+                    value={`₹${(stats.summary?.totalRevenue || 0).toLocaleString()}`}
                     icon={<FiDollarSign />}
                     color="#10b981"
                     delay={0.1}
                 />
                 <StatCard
                     title="Total Orders"
-                    value={stats.overview?.totalOrders || 0}
+                    value={stats.summary?.totalOrders || 0}
                     icon={<FiShoppingBag />}
                     color="#4f46e5"
                     delay={0.2}
                 />
                 <StatCard
-                    title="Conversion Rate"
-                    value={`${stats.overview?.conversionRate || 0}%`}
-                    icon={<FiTrendingUp />}
+                    title="Total Products"
+                    value={stats.summary?.totalProducts || 0}
+                    icon={<FiPackage />}
                     color="#f59e0b"
                     delay={0.3}
                 />
                 <StatCard
                     title="Total Views"
-                    value={(stats.overview?.viewsCount || 0).toLocaleString()}
+                    value={(stats.summary?.viewsCount || 0).toLocaleString()}
                     icon={<FiEye />}
                     color="#6366f1"
                     delay={0.4}
@@ -122,7 +148,7 @@ function AdminAnalytics() {
                     <h3 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "24px", color: "var(--text-primary)" }}>Top 5 Purchased Products</h3>
                     <div style={{ height: 350 }}>
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={stats.topPurchased || []} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
+                            <BarChart data={topPurchased} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
                                 <defs>
                                     <linearGradient id="colorPurchased" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.8} />
@@ -161,7 +187,7 @@ function AdminAnalytics() {
                     <h3 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "24px", color: "var(--text-primary)" }}>Top 5 Browsed Products</h3>
                     <div style={{ height: 350 }}>
                         <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={stats.topBrowsed || []} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
+                            <BarChart data={topBrowsed} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
                                 <defs>
                                     <linearGradient id="colorBrowsed" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
