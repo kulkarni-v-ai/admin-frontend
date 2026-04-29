@@ -64,16 +64,18 @@ const Navbar = () => {
                 {/* User Info */}
                 <div style={{ position: "relative" }} ref={dropdownRef}>
                     <motion.div
-                        whileHover={{ scale: 1.05 }}
+                        whileHover={{ scale: 1.02 }}
                         onClick={() => setShowDropdown(!showDropdown)}
                         style={{
                             display: "flex",
                             alignItems: "center",
                             gap: "8px",
                             padding: "6px 12px",
-                            borderRadius: "8px",
-                            backgroundColor: "white",
-                            border: "1px solid var(--border-color)",
+                            borderRadius: "10px",
+                            background: "var(--glass)",
+                            backdropFilter: "blur(12px)",
+                            WebkitBackdropFilter: "blur(12px)",
+                            border: "1px solid rgba(255,255,255,0.1)",
                             cursor: "pointer"
                         }}
                     >
@@ -82,7 +84,7 @@ const Navbar = () => {
                             height: "32px",
                             borderRadius: "50%",
                             backgroundColor: "var(--primary)",
-                            color: "white",
+                            color: "#000",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
@@ -91,85 +93,72 @@ const Navbar = () => {
                         }}>
                             {user?.username?.[0].toUpperCase()}
                         </div>
-                        <span style={{ fontSize: "0.875rem", fontWeight: 500, color: "#111" }}>{user?.username}</span>
+                        <span style={{ fontSize: "0.875rem", fontWeight: 500, color: "var(--text-main)" }}>{user?.username}</span>
                         <FiChevronDown size={14} color="var(--text-muted)" style={{ transform: showDropdown ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
                     </motion.div>
 
                     <AnimatePresence>
                         {showDropdown && (
                             <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: 10 }}
+                                initial={{ opacity: 0, y: 10, scale: 0.97 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 10, scale: 0.97 }}
                                 transition={{ duration: 0.2 }}
                                 style={{
                                     position: "absolute",
-                                    top: "calc(100% + 8px)",
+                                    top: "calc(100% + 10px)",
                                     right: 0,
-                                    width: "200px",
-                                    backgroundColor: "white",
-                                    borderRadius: "12px",
-                                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                                    border: "1px solid var(--border-color)",
+                                    width: "220px",
+                                    background: "rgba(10,10,10,0.92)",
+                                    backdropFilter: "blur(20px)",
+                                    WebkitBackdropFilter: "blur(20px)",
+                                    borderRadius: "14px",
+                                    boxShadow: "0 8px 32px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.07)",
+                                    border: "1px solid rgba(255,255,255,0.08)",
                                     overflow: "hidden",
                                     zIndex: 50
                                 }}
                             >
-                                <div style={{ padding: "12px", borderBottom: "1px solid var(--border-color)" }}>
-                                    <p style={{ margin: 0, fontSize: "0.875rem", fontWeight: 600 }}>{user?.username}</p>
-                                    <p style={{ margin: 0, fontSize: "0.75rem", color: "var(--text-muted)", textTransform: "capitalize" }}>{user?.role}</p>
+                                {/* Header */}
+                                <div style={{
+                                    padding: "14px 16px",
+                                    borderBottom: "1px solid rgba(255,255,255,0.07)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "10px"
+                                }}>
+                                    <div style={{
+                                        width: "36px", height: "36px", borderRadius: "50%",
+                                        background: "linear-gradient(135deg, var(--primary), #b8962c)",
+                                        color: "#000", display: "flex", alignItems: "center",
+                                        justifyContent: "center", fontWeight: "bold", fontSize: "0.9rem",
+                                        flexShrink: 0
+                                    }}>
+                                        {user?.username?.[0].toUpperCase()}
+                                    </div>
+                                    <div>
+                                        <p style={{ margin: 0, fontSize: "0.875rem", fontWeight: 600, color: "#fff" }}>{user?.username}</p>
+                                        <p style={{ margin: 0, fontSize: "0.72rem", color: "var(--primary)", textTransform: "capitalize", fontWeight: 500 }}>{user?.role}</p>
+                                    </div>
                                 </div>
+
+                                {/* Menu items */}
                                 <div style={{ padding: "8px" }}>
-                                    <button
-                                        onClick={() => {
-                                            setShowDropdown(false);
-                                            navigate("/dashboard/profile");
-                                        }}
-                                        style={{
-                                            width: "100%",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: "8px",
-                                            padding: "8px 12px",
-                                            border: "none",
-                                            background: "none",
-                                            borderRadius: "6px",
-                                            cursor: "pointer",
-                                            fontSize: "0.875rem",
-                                            color: "var(--text-color)",
-                                            textAlign: "left"
-                                        }}
-                                        onMouseEnter={(e) => e.target.style.backgroundColor = "var(--bg-color)"}
-                                        onMouseLeave={(e) => e.target.style.backgroundColor = "transparent"}
-                                    >
-                                        <FiUser /> My Profile
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setShowDropdown(false);
-                                            logout();
-                                            navigate("/login");
-                                        }}
-                                        style={{
-                                            width: "100%",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: "8px",
-                                            padding: "8px 12px",
-                                            border: "none",
-                                            background: "none",
-                                            borderRadius: "6px",
-                                            cursor: "pointer",
-                                            fontSize: "0.875rem",
-                                            color: "#dc2626",
-                                            textAlign: "left",
-                                            marginTop: "4px"
-                                        }}
-                                        onMouseEnter={(e) => e.target.style.backgroundColor = "#fef2f2"}
-                                        onMouseLeave={(e) => e.target.style.backgroundColor = "transparent"}
-                                    >
-                                        <FiLogOut /> Logout
-                                    </button>
+                                    <DropdownItem
+                                        icon={<FiUser size={14} />}
+                                        label="My Profile"
+                                        onClick={() => { setShowDropdown(false); navigate("/dashboard/profile"); }}
+                                        hoverBg="rgba(212,175,55,0.08)"
+                                        color="var(--text-main)"
+                                    />
+                                    <div style={{ margin: "6px 0", borderTop: "1px solid rgba(255,255,255,0.06)" }} />
+                                    <DropdownItem
+                                        icon={<FiLogOut size={14} />}
+                                        label="Logout"
+                                        onClick={() => { setShowDropdown(false); logout(); navigate("/login"); }}
+                                        hoverBg="rgba(220,38,38,0.12)"
+                                        color="#f87171"
+                                    />
                                 </div>
                             </motion.div>
                         )}
@@ -180,4 +169,34 @@ const Navbar = () => {
     );
 };
 
+function DropdownItem({ icon, label, onClick, hoverBg, color }) {
+    const [hovered, setHovered] = useState(false);
+    return (
+        <button
+            onClick={onClick}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                padding: "9px 12px",
+                border: "none",
+                background: hovered ? hoverBg : "transparent",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontSize: "0.875rem",
+                color: color,
+                textAlign: "left",
+                transition: "background 0.15s ease",
+                fontWeight: 500,
+            }}
+        >
+            {icon} {label}
+        </button>
+    );
+}
+
 export default Navbar;
+
