@@ -151,11 +151,9 @@ function AdminUsers() {
                     setUsers(users.map(u => u._id === editingUserId ? { ...u, name, email, address, username: name || email } : u));
                 }
             } else {
-                const res = await api.post("/admin/register", { username, password, role });
+                await api.post("/admin/register", { username, password, role });
                 if (view === "team") {
-                    const newUser = res.data.admin || res.data;
-                    const normalized = { ...newUser, _id: newUser._id || newUser.id };
-                    setUsers([...users, normalized]);
+                    await fetchData();
                 }
             }
             closeModal();

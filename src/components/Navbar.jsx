@@ -80,7 +80,7 @@ const Navbar = () => {
                         }}>
                             {user?.username?.[0].toUpperCase()}
                         </div>
-                        <span style={{ fontSize: "0.875rem", fontWeight: 500 }}>{user?.username}</span>
+                        <span style={{ fontSize: "0.875rem", fontWeight: 500, color: "#111" }}>{user?.username}</span>
                         <FiChevronDown size={14} color="var(--text-muted)" />
                     </motion.div>
                 </div>
