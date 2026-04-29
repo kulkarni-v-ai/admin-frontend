@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
-import api from "../api";
+import api from "../utils/api";
 
 const AdminProfile = () => {
     const { user, login } = useAuth();
@@ -23,7 +23,7 @@ const AdminProfile = () => {
 
     const fetchProfile = async () => {
         try {
-            const { data } = await api.get("/api/admin/profile");
+            const { data } = await api.get("/admin/profile");
             setProfile({
                 name: data.name || "",
                 emailAddress: data.emailAddress || "",
@@ -57,7 +57,7 @@ const AdminProfile = () => {
             const updateData = { ...profile };
             if (password) updateData.password = password;
 
-            const { data } = await api.put("/api/admin/profile", updateData);
+            const { data } = await api.put("/admin/profile", updateData);
             setSuccess("Profile updated successfully!");
             setPassword("");
             
