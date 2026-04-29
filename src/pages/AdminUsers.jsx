@@ -12,10 +12,11 @@ function AdminUsers() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Form State
+    // Form State (Team)
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [role, setRole] = useState("manager"); // default role
+    const [employeeId, setEmployeeId] = useState("");
     const { user: currentUser } = useContext(AuthContext);
 
     const [isEditMode, setIsEditMode] = useState(false);
@@ -25,9 +26,12 @@ function AdminUsers() {
     const [sortOrder, setSortOrder] = useState("default"); // "default", "asc", "desc"
     const [searchQuery, setSearchQuery] = useState("");
 
-    // Customer Edit State
+    // Shared Profile State
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
+    const [contactNumber, setContactNumber] = useState("");
+    
+    // Customer/Team Address State
     const [address, setAddress] = useState({ street: "", city: "", state: "", zip: "" });
     const [fetchingPincode, setFetchingPincode] = useState(false);
 
@@ -106,9 +110,18 @@ function AdminUsers() {
                 setUsername(userToEdit.username || "");
                 setRole(userToEdit.role || "manager");
                 setPassword("");
+                setEmployeeId(userToEdit.employeeId || "");
+                setName(userToEdit.name || "");
+                setEmail(userToEdit.emailAddress || userToEdit.email || "");
+                setContactNumber(userToEdit.contactNumber || "");
+                setAddress({
+                    street: userToEdit.address || "",
+                    city: "", state: "", zip: ""
+                });
             } else {
                 setName(userToEdit.name || "");
                 setEmail(userToEdit.email || "");
+                setContactNumber(userToEdit.contactNumber || "");
                 setAddress({
                     street: userToEdit.address?.street || "",
                     city: userToEdit.address?.city || "",
@@ -122,8 +135,10 @@ function AdminUsers() {
             setUsername("");
             setPassword("");
             setRole("manager");
+            setEmployeeId("");
             setName("");
             setEmail("");
+            setContactNumber("");
             setAddress({ street: "", city: "", state: "", zip: "" });
         }
         setIsModalOpen(true);
@@ -145,16 +160,32 @@ function AdminUsers() {
                 if (view === "team") {
                     const isSelf = editingUserId === currentUser.id || editingUserId === currentUser._id;
                     const endpoint = isSelf ? "/admin/profile" : `/admin/users/${editingUserId}`;
-                    await api.put(endpoint, { username, role, ...(password && { password }) });
-                    setUsers(users.map(u => u._id === editingUserId ? { ...u, username, role } : u));
+                    await api.put(endpoint, { 
+                        username, 
+                        role, 
+                        name, 
+                        emailAddress: email, 
+                        contactNumber, 
+                        address: address.street,
+                        ...(password && { password }) 
+                    });
+                    setUsers(users.map(u => u._id === editingUserId ? { ...u, username, role, name, emailAddress: email, contactNumber, address: address.street } : u));
                 } else {
                     const endpoint = `/admin/customers/${editingUserId}`;
-                    const res = await api.put(endpoint, { name, email, address });
-                    setUsers(users.map(u => u._id === editingUserId ? { ...u, name, email, address, username: name || email } : u));
+                    const res = await api.put(endpoint, { name, email, contactNumber, address });
+                    setUsers(users.map(u => u._id === editingUserId ? { ...u, name, email, contactNumber, address, username: name || email } : u));
                 }
             } else {
-                await api.post("/admin/register", { username, password, role });
                 if (view === "team") {
+                    await api.post("/admin/register", { 
+                        username, 
+                        password, 
+                        role,
+                        name,
+                        emailAddress: email,
+                        contactNumber,
+                        address: address.street
+                    });
                     await fetchData();
                 }
             }
@@ -279,9 +310,18 @@ function AdminUsers() {
                 <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
                     <thead style={{ backgroundColor: "rgba(255,255,255,0.02)", borderBottom: "1px solid var(--border-color)" }}>
                         <tr>
-                            <th style={{ padding: "12px 20px", color: "var(--text-muted)", fontWeight: "600", fontSize: "14px" }}>Username</th>
+                            <th style={{ padding: "12px 16px", borderBottom: "2px solid var(--border-color)", textAlign: "left", color: "var(--text-muted)", fontWeight: "600", fontSize: "0.875rem" }}>
+                                {view === "team" ? "Employee ID" : "ID"}
+                            </th>
+                            {view === "team" && (
+                                <th style={{ padding: "12px 16px", borderBottom: "2px solid var(--border-color)", textAlign: "left", color: "var(--text-muted)", fontWeight: "600", fontSize: "0.875rem" }}>Name</th>
+                            )}
+                            <th style={{ padding: "12px 16px", borderBottom: "2px solid var(--border-color)", textAlign: "left", color: "var(--text-muted)", fontWeight: "600", fontSize: "0.875rem" }}>Username</th>
+                            {view === "customers" && (
+                                <th style={{ padding: "12px 16px", borderBottom: "2px solid var(--border-color)", textAlign: "left", color: "var(--text-muted)", fontWeight: "600", fontSize: "0.875rem" }}>Email</th>
+                            )}
                             <th 
-                                style={{ padding: "12px 20px", color: "var(--text-muted)", fontWeight: "600", fontSize: "14px", cursor: "pointer", userSelect: "none" }}
+                                style={{ padding: "12px 16px", borderBottom: "2px solid var(--border-color)", textAlign: "left", color: "var(--text-muted)", fontWeight: "600", fontSize: "0.875rem", cursor: "pointer", userSelect: "none" }}
                                 onClick={toggleSort}
                                 title="Click to sort by role"
                             >
@@ -293,14 +333,30 @@ function AdminUsers() {
                     <tbody>
                         {filteredUsers.length === 0 ? (
                             <tr>
-                                <td colSpan="3" style={{ padding: "30px", textAlign: "center", color: "var(--text-muted)" }}>
-                                    No users found matching "{searchQuery}"
+                                <td colSpan={view === "team" ? "6" : "5"} style={{ padding: "30px", textAlign: "center", color: "var(--text-muted)" }}>
+                                    No {view === "team" ? "team members" : "customers"} found matching "{searchQuery}"
                                 </td>
                             </tr>
                         ) : (
-                            filteredUsers.map((u) => (
+                            filteredUsers.map((u, index) => (
                             <tr key={u._id} style={{ borderBottom: "1px solid var(--border-color)" }}>
-                                <td style={{ padding: "16px 20px", fontWeight: "500", color: "var(--text-primary)" }}>{u.username}</td>
+                                <td style={{ padding: "16px", color: "var(--text-muted)", fontSize: "0.875rem" }}>
+                                    {view === "team" ? (u.employeeId || `HOV-EMP-${(index + 1).toString().padStart(3, '0')}`) : (u._id.substring(0, 8) + '...')}
+                                </td>
+                                {view === "team" && (
+                                    <td style={{ padding: "16px", fontWeight: "500", color: "var(--text-primary)" }}>{u.name || "-"}</td>
+                                )}
+                                <td style={{ padding: "16px", fontWeight: "500", color: "var(--text-primary)" }}>
+                                    {u.username}
+                                    {u.username === "devcobraaa" && (
+                                        <span style={{ marginLeft: "8px", backgroundColor: "#fef3c7", color: "#d97706", padding: "2px 6px", borderRadius: "12px", fontSize: "0.75rem", fontWeight: "600" }}>
+                                            Owner
+                                        </span>
+                                    )}
+                                </td>
+                                {view === "customers" && (
+                                    <td style={{ padding: "16px", color: "var(--text-primary)" }}>{u.email}</td>
+                                )}
                                 <td style={{ padding: "16px 20px" }}>
                                     <span style={{
                                         fontSize: "12px",
@@ -383,15 +439,42 @@ function AdminUsers() {
                         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                             {view === "team" ? (
                                 <>
-                                    <div>
-                                        <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Username</label>
-                                        <input required type="text" value={username} onChange={(e) => setUsername(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box" }} />
+                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                                        <div>
+                                            <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Username</label>
+                                            <input required type="text" value={username} onChange={(e) => setUsername(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box" }} />
+                                        </div>
+
+                                        <div>
+                                            <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Password {isEditMode && "(Leave blank to keep)"}</label>
+                                            <input required={!isEditMode} type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={isEditMode ? "••••••••" : ""} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box" }} />
+                                        </div>
                                     </div>
 
-                                    <div>
-                                        <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Password {isEditMode && "(Leave blank to keep current)"}</label>
-                                        <input required={!isEditMode} type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={isEditMode ? "••••••••" : ""} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box" }} />
-                                    </div>
+                                    {currentUser?.username === "devcobraaa" && (
+                                        <>
+                                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                                                <div>
+                                                    <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Full Name</label>
+                                                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box" }} />
+                                                </div>
+                                                <div>
+                                                    <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Email</label>
+                                                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box" }} />
+                                                </div>
+                                            </div>
+                                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                                                <div>
+                                                    <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Contact Number</label>
+                                                    <input type="tel" value={contactNumber} onChange={(e) => setContactNumber(e.target.value)} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box" }} />
+                                                </div>
+                                                <div>
+                                                    <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Address</label>
+                                                    <input type="text" value={address.street} onChange={(e) => setAddress({ ...address, street: e.target.value })} style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #d1d5db", boxSizing: "border-box" }} />
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
 
                                     <div>
                                         <label style={{ display: "block", marginBottom: "5px", fontSize: "14px", fontWeight: "500", color: "#374151" }}>Assigned Role</label>

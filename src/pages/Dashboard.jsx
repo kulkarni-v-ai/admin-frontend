@@ -7,6 +7,7 @@ import AdminProducts from "./AdminProducts";
 import AdminOrders from "./AdminOrders";
 import AdminUsers from "./AdminUsers";
 import AdminAnalytics from "./AdminAnalytics";
+import AdminProfile from "./AdminProfile";
 import SystemMonitoring from "./SystemMonitoring";
 import ActivityLogs from "./ActivityLogs";
 import PageTransition from "../components/PageTransition";
@@ -26,6 +27,7 @@ function Dashboard() {
             <Route path="analytics" element={<PageTransition><AdminAnalytics /></PageTransition>} />
             <Route path="products" element={<PageTransition><AdminProducts /></PageTransition>} />
             <Route path="orders" element={<PageTransition><AdminOrders /></PageTransition>} />
+            <Route path="profile" element={<PageTransition><AdminProfile /></PageTransition>} />
           </Route>
 
           {/* Superadmin Only: Users and System monitoring */}

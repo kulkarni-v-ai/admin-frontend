@@ -15,21 +15,18 @@ const Logo = () => {
                 cursor: "pointer"
             }}
         >
-            <div style={{
-                width: "42px",
-                height: "42px",
-                borderRadius: "50%",
-                background: "linear-gradient(135deg, #d4af37, #b8962c)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#000",
-                fontWeight: "900",
-                fontSize: "18px",
-                boxShadow: "0 4px 12px rgba(212, 175, 55, 0.3)"
-            }}>
-                HOV
-            </div>
+            <img 
+                src="/logo.png" 
+                alt="HOV Logo" 
+                style={{
+                    width: "48px",
+                    height: "48px",
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    boxShadow: "0 4px 12px rgba(212, 175, 55, 0.3)",
+                    border: "2px solid #d4af37"
+                }} 
+            />
             <h2 style={{
                 margin: 0,
                 background: "linear-gradient(to right, #ffffff, #d1d5db)",

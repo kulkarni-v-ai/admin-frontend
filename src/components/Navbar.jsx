@@ -1,11 +1,25 @@
-import { motion } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../hooks/useAuth";
-import { FiBell, FiSearch, FiUser, FiChevronDown } from "react-icons/fi";
-import { useLocation } from "react-router-dom";
+import { FiBell, FiSearch, FiUser, FiChevronDown, FiLogOut } from "react-icons/fi";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const location = useLocation();
+    const navigate = useNavigate();
+    const [showDropdown, setShowDropdown] = useState(false);
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setShowDropdown(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     const getPageTitle = () => {
         const path = location.pathname.split("/").pop();
@@ -48,13 +62,10 @@ const Navbar = () => {
                 <div style={{ width: "1px", height: "24px", backgroundColor: "var(--border-color)" }} />
 
                 {/* User Info */}
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    <div style={{ textAlign: "right", display: "none" }}>
-                        <p style={{ fontSize: "0.875rem", fontWeight: 600, margin: 0 }}>{user?.username}</p>
-                        <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", margin: 0 }}>{user?.role}</p>
-                    </div>
+                <div style={{ position: "relative" }} ref={dropdownRef}>
                     <motion.div
                         whileHover={{ scale: 1.05 }}
+                        onClick={() => setShowDropdown(!showDropdown)}
                         style={{
                             display: "flex",
                             alignItems: "center",
@@ -81,8 +92,88 @@ const Navbar = () => {
                             {user?.username?.[0].toUpperCase()}
                         </div>
                         <span style={{ fontSize: "0.875rem", fontWeight: 500, color: "#111" }}>{user?.username}</span>
-                        <FiChevronDown size={14} color="var(--text-muted)" />
+                        <FiChevronDown size={14} color="var(--text-muted)" style={{ transform: showDropdown ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }} />
                     </motion.div>
+
+                    <AnimatePresence>
+                        {showDropdown && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 10 }}
+                                transition={{ duration: 0.2 }}
+                                style={{
+                                    position: "absolute",
+                                    top: "calc(100% + 8px)",
+                                    right: 0,
+                                    width: "200px",
+                                    backgroundColor: "white",
+                                    borderRadius: "12px",
+                                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                                    border: "1px solid var(--border-color)",
+                                    overflow: "hidden",
+                                    zIndex: 50
+                                }}
+                            >
+                                <div style={{ padding: "12px", borderBottom: "1px solid var(--border-color)" }}>
+                                    <p style={{ margin: 0, fontSize: "0.875rem", fontWeight: 600 }}>{user?.username}</p>
+                                    <p style={{ margin: 0, fontSize: "0.75rem", color: "var(--text-muted)", textTransform: "capitalize" }}>{user?.role}</p>
+                                </div>
+                                <div style={{ padding: "8px" }}>
+                                    <button
+                                        onClick={() => {
+                                            setShowDropdown(false);
+                                            navigate("/dashboard/profile");
+                                        }}
+                                        style={{
+                                            width: "100%",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "8px",
+                                            padding: "8px 12px",
+                                            border: "none",
+                                            background: "none",
+                                            borderRadius: "6px",
+                                            cursor: "pointer",
+                                            fontSize: "0.875rem",
+                                            color: "var(--text-color)",
+                                            textAlign: "left"
+                                        }}
+                                        onMouseEnter={(e) => e.target.style.backgroundColor = "var(--bg-color)"}
+                                        onMouseLeave={(e) => e.target.style.backgroundColor = "transparent"}
+                                    >
+                                        <FiUser /> My Profile
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setShowDropdown(false);
+                                            logout();
+                                            navigate("/login");
+                                        }}
+                                        style={{
+                                            width: "100%",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            gap: "8px",
+                                            padding: "8px 12px",
+                                            border: "none",
+                                            background: "none",
+                                            borderRadius: "6px",
+                                            cursor: "pointer",
+                                            fontSize: "0.875rem",
+                                            color: "#dc2626",
+                                            textAlign: "left",
+                                            marginTop: "4px"
+                                        }}
+                                        onMouseEnter={(e) => e.target.style.backgroundColor = "#fef2f2"}
+                                        onMouseLeave={(e) => e.target.style.backgroundColor = "transparent"}
+                                    >
+                                        <FiLogOut /> Logout
+                                    </button>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
             </div>
         </header>
