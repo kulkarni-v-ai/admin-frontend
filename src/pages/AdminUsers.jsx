@@ -218,7 +218,7 @@ function AdminUsers() {
                 </div>
                 {view === "team" && (
                     <button
-                        onClick={openModal}
+                        onClick={() => openModal(null)}
                         style={{
                             display: "flex", alignItems: "center", gap: "8px",
                             padding: "10px 16px", backgroundColor: "var(--primary)", color: "#111",
@@ -266,11 +266,17 @@ function AdminUsers() {
                                 <td style={{ padding: "16px 20px", textAlign: "right", display: "flex", justifyContent: "flex-end", gap: "8px" }}>
                                     <button
                                         onClick={() => openModal(u)}
+                                        disabled={
+                                            (u.role === "superadmin" && currentUser?.username !== "devcobraaa") || 
+                                            u.username === "devcobraaa" || 
+                                            u._id === (currentUser?.id || currentUser?._id)
+                                        }
                                         style={{
-                                            padding: "8px", backgroundColor: "rgba(59, 130, 246, 0.1)",
-                                            color: "#3b82f6", border: "none", borderRadius: "4px", cursor: "pointer"
+                                            padding: "8px", marginRight: "8px", border: "none", borderRadius: "4px",
+                                            backgroundColor: ((u.role === "superadmin" && currentUser?.username !== "devcobraaa") || u.username === "devcobraaa" || u._id === (currentUser?.id || currentUser?._id)) ? "rgba(255,255,255,0.05)" : "#f3f4f6",
+                                            cursor: ((u.role === "superadmin" && currentUser?.username !== "devcobraaa") || u.username === "devcobraaa" || u._id === (currentUser?.id || currentUser?._id)) ? "not-allowed" : "pointer"
                                         }}
-                                        title={`Edit ${view === 'team' ? 'team member' : 'customer'} details`}
+                                        title={u.username === "devcobraaa" ? "Owner account cannot be modified" : "Edit user"}
                                     >
                                         <FiEdit2 size={16} />
                                     </button>

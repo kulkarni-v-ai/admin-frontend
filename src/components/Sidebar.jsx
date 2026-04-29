@@ -55,6 +55,13 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
             label: "Security Logs",
             icon: <FiActivity />,
             allowedRoles: ["superadmin"]
+        },
+        {
+            path: "https://houseofvisuals.co.in",
+            label: "Edit Landing Page",
+            icon: <FiLayout />,
+            allowedRoles: ["superadmin"],
+            external: true
         }
     ];
 
@@ -120,6 +127,37 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                 {navItems.map((item) => {
                     if (!hasRole(item.allowedRoles)) return null;
                     const isActive = location.pathname.startsWith(item.path);
+
+                    if (item.external) {
+                        return (
+                            <a
+                                key={item.path}
+                                href={item.path}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "16px",
+                                    padding: "12px 16px",
+                                    color: "var(--text-sidebar)",
+                                    backgroundColor: "transparent",
+                                    textDecoration: "none",
+                                    borderRadius: "12px",
+                                    transition: "all 0.2s"
+                                }}
+                            >
+                                <span style={{ fontSize: "1.25rem", color: "inherit" }}>
+                                    {item.icon}
+                                </span>
+                                {!isCollapsed && (
+                                    <span style={{ fontSize: "0.875rem", fontWeight: 500, whiteSpace: "nowrap" }}>
+                                        {item.label}
+                                    </span>
+                                )}
+                            </a>
+                        );
+                    }
 
                     return (
                         <Link
